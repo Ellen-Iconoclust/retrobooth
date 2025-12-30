@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetroBooth - Vintage Photo Strip Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Courier+Prime&family=DM+Serif+Display&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --vintage-beige: #f4ece1;
+      --vintage-red: #bc4749;
+      --vintage-dark: #386641;
+      --vintage-paper: #e9edc9;
+    }
+
+    body {
+      background-color: var(--vintage-beige);
+      font-family: 'Courier Prime', monospace;
+      color: #2b2d42;
+      overflow-x: hidden;
+    }
+
+    .font-retro {
+      font-family: 'DM Serif Display', serif;
+    }
+
+    .font-marker {
+      font-family: 'Permanent Marker', cursive;
+    }
+
+    /* Glassmorphism Nav */
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    }
+
+    .grain-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://www.transparenttextures.com/patterns/stardust.png');
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    /* Animations */
+    @keyframes float {
+      0% {
+        transform: translateY(0px) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-20px) rotate(5deg);
+      }
+
+      100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+    }
+
+    .animate-float {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .delay-1 {
+      animation-delay: 1s;
+    }
+
+    .delay-2 {
+      animation-delay: 2s;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reveal {
+      animation: slideIn 1s ease-out forwards;
+    }
+
+    .camera-box {
+      aspect-ratio: 4/3;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+      border: 12px solid #fff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .flash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      opacity: 0;
+      z-index: 40;
+      pointer-events: none;
+    }
+
+    .flash-animate {
+      animation: flashAnim 0.3s ease-out;
+    }
+
+    @keyframes flashAnim {
+      0% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .strip-preview {
+      background: #fff;
+      padding: 15px;
+      box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.15);
+      width: fit-content;
+      margin: 0 auto;
+    }
+
+    .shutter-btn {
+      background: var(--vintage-red);
+      transition: all 0.2s;
+    }
+
+    .shutter-btn:active {
+      transform: scale(0.9);
+      filter: brightness(0.8);
+    }
+
+    /* Filters */
+    .filter-retro {
+      filter: sepia(0.4) contrast(1.1) brightness(0.9) saturate(1.2);
+    }
+
+    .filter-bw {
+      filter: grayscale(1) contrast(1.2);
+    }
+
+    .filter-sepia {
+      filter: sepia(1);
+    }
+
+    .filter-warm {
+      filter: sepia(0.2) saturate(1.6) hue-rotate(-10deg);
+    }
+
+    .filter-cool {
+      filter: contrast(1.1) brightness(1.1) saturate(0.8) hue-rotate(10deg);
+    }
+
+    .sticker {
+      cursor: move;
+      position: absolute;
+      user-select: none;
+    }
+
+    .scroll-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Floating background shapes */
+    .blob {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: var(--vintage-red);
+      filter: blur(80px);
+      opacity: 0.1;
+      z-index: -1;
+      border-radius: 50%;
+    }
+
+    footer {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <div class="grain-overlay"></div>
+
+  <!-- BACKGROUND BLOBS -->
+  <div class="blob top-0 -left-20 animate-float"></div>
+  <div class="blob bottom-0 -right-20 animate-float delay-2"></div>
+
+  <!-- GLASS NAV BAR -->
+  <nav
+    class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-4xl glass-nav rounded-full px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
+      <div class="w-8 h-8 bg-[#bc4749] rounded-lg flex items-center justify-center">
+        <i data-lucide="camera" class="w-5 h-5 text-white"></i>
+      </div>
+      <span class="font-retro text-xl font-bold tracking-tight">RetroBooth</span>
+    </div>
+    <div class="flex gap-6 text-sm font-bold uppercase tracking-widest text-gray-700">
+      <button onclick="goHome()" class="hover:text-[#bc4749] transition">Home</button>
+      <button onclick="startApp()" class="hover:text-[#bc4749] transition">Booth</button>
+    </div>
+  </nav>
+
+  <!-- LANDING PAGE -->
+  <div id="landing-page" class="relative z-10 flex flex-col items-center">
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col items-center justify-center p-6 pt-24 text-center w-full">
+      <div class="reveal">
+        <h1 class="text-7xl md:text-9xl font-retro text-[#bc4749] mb-4 drop-shadow-md">RetroBooth</h1>
+        <p class="text-xl md:text-2xl max-w-2xl mx-auto mb-8 leading-relaxed opacity-80">
+          A digital soul in an analog body. Capture timeless moments in a classic 3-5 photo strip.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-6 mb-12 reveal" style="animation-delay: 0.3s">
+        <!-- Demo Strip 1: B/W Vintage Theme -->
+        <div
+          class="strip-preview -rotate-3 scale-75 md:scale-90 opacity-90 hover:rotate-0 transition-transform duration-500 animate-float">
+          <div class="w-32 h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
+          </div>
+          <div class="w-32 h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
+          </div>
+          <div class="w-32 h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
+          </div>
+          <p class="font-marker text-sm mt-2 text-center">Analog Souls</p>
+        </div>
+        <!-- Demo Strip 2: B/W Photography Theme -->
+        <div
+          class="hidden md:block strip-preview rotate-3 scale-90 opacity-90 hover:rotate-0 transition-transform duration-500 animate-float delay-1">
+          <div class="w-32 h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
+          </div>
+          <div class="w-32 h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
+          </div>
+          <div class="w-32 h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
+          </div>
+          <p class="font-marker text-sm mt-2 text-center">Focus & Flow</p>
+        </div>
+      </div>
+
+      <button onclick="startApp()" class="reveal px-10 py-4 bg-[#386641] text-white text-2xl rounded-full font-retro hover:bg-[#2a4d31] transform transition hover:scale-105 shadow-xl" style="animation-delay: 0.6s">
+                Step Into the Booth
+            </button>
+    </section>
+
+    <!-- Layout Styles Showcase -->
+    <section class="w-full max-w-6xl px-6 py-24 text-center">
+      <h2 class="text-4xl font-retro text-[#bc4749] mb-12">Choose Your Style</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 items-start justify-center">
+        <!-- 3 Strip Vertical -->
+        <div class="flex flex-col items-center">
+          <p class="font-bold text-gray-500 mb-4 uppercase tracking-widest text-xs">The Classic (3-Strip)</p>
+          <div class="strip-preview scale-75 origin-top">
+            <div class="w-28 h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <div class="w-28 h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <div class="w-28 h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <p class="font-marker text-xs mt-2 text-center">Style 01</p>
+          </div>
+        </div>
+        <!-- 4 Strip Vertical -->
+        <div class="flex flex-col items-center">
+          <p class="font-bold text-gray-500 mb-4 uppercase tracking-widest text-xs">The Standard (4-Strip)</p>
+          <div class="strip-preview scale-75 origin-top">
+            <div class="w-28 h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <div class="w-28 h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <div class="w-28 h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <div class="w-28 h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <p class="font-marker text-xs mt-2 text-center">Style 02</p>
+          </div>
+        </div>
+        <!-- 5 Strip Vertical -->
+        <div class="flex flex-col items-center">
+          <p class="font-bold text-gray-500 mb-4 uppercase tracking-widest text-xs">The Tall (5-Strip)</p>
+          <div class="strip-preview scale-75 origin-top">
+            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw">
+            </div>
+            <p class="font-marker text-xs mt-2 text-center">Style 03</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="w-full py-12 px-6 border-t border-gray-100 flex flex-col items-center">
+      <div class="flex gap-4 mb-8">
+        <a href="https://github.com/Ellen-Iconoclust/" target="_blank"
+          class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-black hover:text-white transition-all duration-300">
+          <i data-lucide="github" class="w-6 h-6"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/elisa-pravin-s" target="_blank"
+          class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-[#0077b5] hover:text-white transition-all duration-300">
+          <i data-lucide="linkedin" class="w-6 h-6"></i>
+        </a>
+        <a href="https://instagram.com/pravin_s_elisa" target="_blank"
+          class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-pink-600 hover:text-white transition-all duration-300">
+          <i data-lucide="instagram" class="w-6 h-6"></i>
+        </a>
+      </div>
+      <p class="text-gray-600 font-bold tracking-widest text-xs uppercase mb-2">
+        &copy; 2026 RetroBooth All Rights Reserved
+      </p>
+      <p class="text-gray-400 text-xs">
+        Made by <a href="https://ellen-dev.vercel.app" target="_blank"
+          class="text-[#bc4749] hover:underline font-bold">Ellen Iconoclust</a>
+      </p>
+    </footer>
+  </div>
+
+  <!-- BOOTH INTERFACE -->
+  <div id="booth-page"
+    class="hidden min-h-screen p-4 pt-24 md:p-8 md:pt-24 flex flex-col lg:flex-row gap-8 relative z-10">
+
+    <!-- Left: Controls & Feed -->
+    <div class="flex-1 flex flex-col items-center">
+      <div class="w-full max-w-2xl">
+        <div class="flex justify-between items-end mb-4">
+          <h2 class="text-3xl font-retro text-[#bc4749]">Live Preview</h2>
+          <div id="status-text" class="text-lg font-bold">Ready to Shoot</div>
+        </div>
+
+        <!-- Camera Container -->
+        <div class="camera-box rounded-lg">
+          <video id="video" autoplay playsinline class="w-full h-full object-cover transition-all"></video>
+          <canvas id="canvas-process" class="hidden"></canvas>
+          <div id="flash-effect" class="flash"></div>
+          <div id="countdown"
+            class="absolute inset-0 flex items-center justify-center text-9xl font-retro text-white drop-shadow-2xl opacity-0 pointer-events-none">
+            3</div>
+        </div>
+
+        <!-- Live Filters -->
+        <div class="mt-6 overflow-x-auto py-2 flex gap-4 scroll-hide">
+          <button onclick="setFilter('none')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Original</button>
+          <button onclick="setFilter('retro')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Retro</button>
+          <button onclick="setFilter('bw')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">B&W</button>
+          <button onclick="setFilter('sepia')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Sepia</button>
+          <button onclick="setFilter('warm')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Warm</button>
+          <button onclick="setFilter('cool')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Cool</button>
+        </div>
+
+        <!-- Main Actions -->
+        <div class="mt-8 flex items-center justify-center gap-6">
+          <button onclick="resetSession()" class="p-4 bg-gray-200 rounded-full hover:bg-gray-300 transition" title="Reset Session">
+                        <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
+                    </button>
+
+          <button id="capture-btn" onclick="startCaptureSequence()" class="shutter-btn w-24 h-24 rounded-full border-8 border-white shadow-2xl flex items-center justify-center text-white">
+                        <i data-lucide="camera" class="w-10 h-10"></i>
+                    </button>
+
+          <button onclick="toggleMirror()" class="p-4 bg-gray-200 rounded-full hover:bg-gray-300 transition" title="Toggle Mirror">
+                        <i data-lucide="flip-horizontal" class="w-6 h-6"></i>
+                    </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Strip Preview & Customization -->
+    <div class="w-full lg:w-96 flex flex-col gap-6">
+      <div class="bg-[#fcf8f3] p-6 rounded-2xl shadow-xl border border-gray-200">
+        <h3 class="text-2xl font-retro mb-4">Your Strip</h3>
+
+        <!-- The Photo Strip Container -->
+        <div id="final-strip" class="strip-preview relative min-h-[400px] w-64 bg-white">
+          <div id="strip-photos" class="flex flex-col gap-3">
+            <!-- Captured photos will appear here -->
+          </div>
+
+          <div class="mt-4 px-2">
+            <input type="text" id="strip-caption" placeholder="Tap to write..." class="w-full text-center font-marker text-xl bg-transparent border-none focus:ring-0 placeholder-gray-300" maxlength="30">
+            <div id="date-stamp" class="text-[10px] text-gray-400 text-center mt-1 uppercase tracking-tighter"></div>
+          </div>
+
+          <!-- Stickers layer -->
+          <div id="stickers-container" class="absolute inset-0 pointer-events-none"></div>
+        </div>
+
+        <!-- Customization Tools -->
+        <div class="mt-8 space-y-4">
+          <div>
+            <label class="text-sm font-bold uppercase block mb-2">Layout</label>
+            <select id="layout-select" onchange="updateLayout()" class="w-full p-2 rounded border border-gray-300 bg-white">
+                            <option value="3">3 Photos (Classic)</option>
+                            <option value="4">4 Photos (Standard)</option>
+                            <option value="5">5 Photos (Tall)</option>
+                        </select>
+          </div>
+
+          <div>
+            <label class="text-sm font-bold uppercase block mb-2">Add Decoration</label>
+            <div class="flex gap-2 flex-wrap">
+              <button onclick="addSticker('❤️')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">❤️</button>
+              <button onclick="addSticker('⭐')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">⭐</button>
+              <button onclick="addSticker('✨')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">✨</button>
+              <button onclick="addSticker('🎞️')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">🎞️</button>
+              <button onclick="addSticker('📸')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">📸</button>
+            </div>
+          </div>
+
+          <div class="pt-4 flex flex-col gap-3">
+            <button id="download-btn" onclick="exportStrip()" disabled class="w-full py-3 bg-[#bc4749] text-white rounded-lg font-bold opacity-50 cursor-not-allowed transition hover:brightness-110 shadow-lg">
+                            Download Strip (.PNG)
+                        </button>
+            <button onclick="goHome()" class="w-full py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-bold hover:bg-gray-200 transition">
+                            Back to Home
+                        </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Effects -->
+  <audio id="audio-shutter" src="https://assets.mixkit.co/active_storage/sfx/2855/2855-preview.mp3"
+    preload="auto"></audio>
+  <audio id="audio-timer" src="https://assets.mixkit.co/active_storage/sfx/1071/1071-preview.mp3"
+    preload="auto"></audio>
+
+  <script>
+    // Initialize Lucide Icons
+        lucide.createIcons();
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas-process');
+        const ctx = canvas.getContext('2d');
+        const flash = document.getElementById('flash-effect');
+        const countdownEl = document.getElementById('countdown');
+        const photoContainer = document.getElementById('strip-photos');
+        const downloadBtn = document.getElementById('download-btn');
+        const dateStampEl = document.getElementById('date-stamp');
+
+        let stream = null;
+        let capturedPhotos = [];
+        let maxPhotos = 3;
+        let isCapturing = false;
+        let currentFilter = 'none';
+        let isMirrored = false;
+
+        // --- Core App Functions ---
+
+        async function startApp() {
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('booth-page').classList.remove('hidden');
+            window.scrollTo(0, 0);
+            
+            try {
+                if (!stream) {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { width: 1280, height: 720 }, 
+                        audio: false 
+                    });
+                    video.srcObject = stream;
+                }
+                updateDate();
+            } catch (err) {
+                alert("Camera access is required for the photobooth to work. Please check permissions!");
+                console.error(err);
+                goHome();
+            }
+        }
+
+        function goHome() {
+            document.getElementById('booth-page').classList.add('hidden');
+            document.getElementById('landing-page').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function updateDate() {
+            const now = new Date();
+            dateStampEl.innerText = now.toLocaleDateString('en-US', { 
+                month: 'short', day: 'numeric', year: 'numeric' 
+            });
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            video.className = 'w-full h-full object-cover transition-all filter-' + filter;
+            if (isMirrored) video.classList.add('-scale-x-100');
+        }
+
+        function toggleMirror() {
+            isMirrored = !isMirrored;
+            setFilter(currentFilter);
+        }
+
+        function updateLayout() {
+            maxPhotos = parseInt(document.getElementById('layout-select').value);
+            resetSession();
+        }
+
+        function resetSession() {
+            capturedPhotos = [];
+            isCapturing = false;
+            photoContainer.innerHTML = '';
+            for (let i = 1; i <= maxPhotos; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'empty-slot w-full h-32 bg-gray-100 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-300';
+                slot.innerText = `Photo ${i}`;
+                photoContainer.appendChild(slot);
+            }
+            downloadBtn.disabled = true;
+            downloadBtn.classList.add('opacity-50');
+            document.getElementById('status-text').innerText = "Ready to Shoot";
+            document.getElementById('stickers-container').innerHTML = '';
+        }
+
+        // --- Capture Sequence ---
+
+        async function startCaptureSequence() {
+            if (isCapturing) return;
+            isCapturing = true;
+            capturedPhotos = [];
+            photoContainer.innerHTML = '';
+            downloadBtn.disabled = true;
+            downloadBtn.classList.add('opacity-50');
+
+            for (let i = 0; i < maxPhotos; i++) {
+                document.getElementById('status-text').innerText = `Preparing Shot ${i + 1}/${maxPhotos}`;
+                await runCountdown();
+                capturePhoto();
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
+            document.getElementById('status-text').innerText = "Strip Complete!";
+            isCapturing = false;
+            downloadBtn.disabled = false;
+            downloadBtn.classList.remove('opacity-50');
+        }
+
+        function runCountdown() {
+            return new Promise((resolve) => {
+                let count = 3;
+                countdownEl.classList.remove('opacity-0');
+                countdownEl.innerText = count;
+                document.getElementById('audio-timer').play();
+
+                const timer = setInterval(() => {
+                    count--;
+                    if (count <= 0) {
+                        clearInterval(timer);
+                        countdownEl.classList.add('opacity-0');
+                        resolve();
+                    } else {
+                        countdownEl.innerText = count;
+                    }
+                }, 800);
+            });
+        }
+
+        function capturePhoto() {
+            flash.classList.add('flash-animate');
+            document.getElementById('audio-shutter').play();
+            setTimeout(() => flash.classList.remove('flash-animate'), 300);
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            if (isMirrored) {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            const photoEl = document.createElement('div');
+            photoEl.className = 'w-full h-32 overflow-hidden bg-black shadow-inner';
+            
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.className = 'w-full h-full object-cover filter-' + currentFilter;
+            
+            photoEl.appendChild(img);
+            photoContainer.appendChild(photoEl);
+            capturedPhotos.push(dataUrl);
+        }
+
+        // --- Stickers & Decorations ---
+
+        function addSticker(emoji) {
+            const container = document.getElementById('stickers-container');
+            const sticker = document.createElement('div');
+            sticker.className = 'sticker text-3xl pointer-events-auto';
+            sticker.innerText = emoji;
+            sticker.style.left = '40%';
+            sticker.style.top = '40%';
+            
+            makeDraggable(sticker);
+            container.appendChild(sticker);
+        }
+
+        function makeDraggable(el) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            el.onmousedown = dragMouseDown;
+            el.ontouchstart = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+                pos4 = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+                document.onmouseup = closeDragElement;
+                document.ontouchend = closeDragElement;
+                document.onmousemove = elementDrag;
+                document.ontouchmove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+                const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+                pos1 = pos3 - clientX;
+                pos2 = pos4 - clientY;
+                pos3 = clientX;
+                pos4 = clientY;
+                el.style.top = (el.offsetTop - pos2) + "px";
+                el.style.left = (el.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+                document.ontouchend = null;
+                document.ontouchmove = null;
+            }
+        }
+
+        async function exportStrip() {
+            const strip = document.getElementById('final-strip');
+            const originalBorder = strip.style.border;
+            const originalShadow = strip.style.boxShadow;
+            
+            strip.style.border = 'none';
+            strip.style.boxShadow = 'none';
+
+            try {
+                const canvasExport = await html2canvas(strip, {
+                    scale: 3,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    useCORS: true
+                });
+
+                const link = document.createElement('a');
+                link.download = `retrobooth-${Date.now()}.png`;
+                link.href = canvasExport.toDataURL('image/png');
+                link.click();
+            } catch (err) {
+                console.error("Export failed", err);
+                alert("Failed to generate image.");
+            } finally {
+                strip.style.border = originalBorder;
+                strip.style.boxShadow = originalShadow;
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !document.getElementById('booth-page').classList.contains('hidden')) {
+                if (!isCapturing && document.activeElement.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    startCaptureSequence();
+                }
+            }
+        });
+
+        resetSession();
+  </script>
+</body>
+
+</html>
