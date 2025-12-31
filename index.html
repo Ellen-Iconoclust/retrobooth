@@ -1,462 +1,632 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RetroBooth - Vintage Photo Strip Generator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Courier+Prime&family=DM+Serif+Display&display=swap"
-    rel="stylesheet">
-  <style>
-    :root {
-      --vintage-beige: #f4ece1;
-      --vintage-red: #bc4749;
-      --vintage-dark: #386641;
-      --vintage-paper: #e9edc9;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroBooth - Vintage Photo Strip Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Courier+Prime&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --vintage-beige: #f4ece1;
+            --vintage-red: #bc4749;
+            --vintage-dark: #386641;
+            --vintage-brown: #582f0e;
+            --vintage-tan: #ddb892;
+        }
 
-    body {
-      background-color: var(--vintage-beige);
-      font-family: 'Courier Prime', monospace;
-      color: #2b2d42;
-      overflow-x: hidden;
-    }
+        body {
+            background-color: var(--vintage-beige);
+            font-family: 'Courier Prime', monospace;
+            color: #2b2d42;
+            overflow-x: hidden;
+        }
 
-    .font-retro {
-      font-family: 'DM Serif Display', serif;
-    }
+        .font-retro { font-family: 'DM Serif Display', serif; }
+        .font-marker { font-family: 'Permanent Marker', cursive; }
+        
+        /* Glassmorphism Nav */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        }
 
-    .font-marker {
-      font-family: 'Permanent Marker', cursive;
-    }
+        .grain-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 50;
+        }
 
-    /* Glassmorphism Nav */
-    .glass-nav {
-      background: rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-    }
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
 
-    .grain-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('https://www.transparenttextures.com/patterns/stardust.png');
-      opacity: 0.15;
-      pointer-events: none;
-      z-index: 50;
-    }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
 
-    /* Animations */
-    @keyframes float {
-      0% {
-        transform: translateY(0px) rotate(0deg);
-      }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-      50% {
-        transform: translateY(-20px) rotate(5deg);
-      }
+        .reveal {
+            animation: slideIn 1s ease-out forwards;
+        }
 
-      100% {
-        transform: translateY(0px) rotate(0deg);
-      }
-    }
+        .camera-box {
+            aspect-ratio: 4/3;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
 
-    .animate-float {
-      animation: float 6s ease-in-out infinite;
-    }
+        @media (min-width: 768px) {
+            .camera-box { border: 12px solid #fff; }
+        }
 
-    .delay-1 {
-      animation-delay: 1s;
-    }
+        .flash {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            opacity: 0;
+            z-index: 40;
+            pointer-events: none;
+        }
 
-    .delay-2 {
-      animation-delay: 2s;
-    }
+        .flash-animate {
+            animation: flashAnim 0.3s ease-out;
+        }
 
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
+        @keyframes flashAnim {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        .strip-preview {
+            background: #fff;
+            padding: 12px;
+            box-shadow: 5px 5px 20px rgba(0,0,0,0.1);
+            width: fit-content;
+            margin: 0 auto;
+        }
 
-    .reveal {
-      animation: slideIn 1s ease-out forwards;
-    }
+        .shutter-btn {
+            background: var(--vintage-red);
+            transition: all 0.2s;
+        }
 
-    .camera-box {
-      aspect-ratio: 4/3;
-      background: #000;
-      position: relative;
-      overflow: hidden;
-      border: 12px solid #fff;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
+        .shutter-btn:active {
+            transform: scale(0.9);
+            filter: brightness(0.8);
+        }
 
-    .flash {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      opacity: 0;
-      z-index: 40;
-      pointer-events: none;
-    }
+        /* Filters */
+        .filter-bw { filter: grayscale(1) contrast(1.2); }
+        .filter-retro { filter: sepia(0.4) contrast(1.1) brightness(0.9) saturate(1.2); }
+        .filter-sepia { filter: sepia(1); }
+        .filter-warm { filter: sepia(0.2) saturate(1.6) hue-rotate(-10deg); }
+        .filter-cool { filter: contrast(1.1) brightness(1.1) saturate(0.8) hue-rotate(10deg); }
+        
+        .sticker {
+            cursor: move;
+            position: absolute;
+            user-select: none;
+        }
 
-    .flash-animate {
-      animation: flashAnim 0.3s ease-out;
-    }
+        .scroll-hide::-webkit-scrollbar { display: none; }
 
-    @keyframes flashAnim {
-      0% {
-        opacity: 1;
-      }
+        /* Enhanced Vibrant Background Blobs */
+        .blob {
+            position: absolute;
+            width: 40vw;
+            height: 40vw;
+            min-width: 300px;
+            filter: blur(80px);
+            opacity: 0.25;
+            z-index: -1;
+            border-radius: 50%;
+        }
 
-      100% {
-        opacity: 0;
-      }
-    }
+        .blob-brown { background: var(--vintage-brown); }
+        .blob-tan { background: var(--vintage-tan); }
+        .blob-red { background: var(--vintage-red); }
 
-    .strip-preview {
-      background: #fff;
-      padding: 15px;
-      box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.15);
-      width: fit-content;
-      margin: 0 auto;
-    }
-
-    .shutter-btn {
-      background: var(--vintage-red);
-      transition: all 0.2s;
-    }
-
-    .shutter-btn:active {
-      transform: scale(0.9);
-      filter: brightness(0.8);
-    }
-
-    /* Filters */
-    .filter-retro {
-      filter: sepia(0.4) contrast(1.1) brightness(0.9) saturate(1.2);
-    }
-
-    .filter-bw {
-      filter: grayscale(1) contrast(1.2);
-    }
-
-    .filter-sepia {
-      filter: sepia(1);
-    }
-
-    .filter-warm {
-      filter: sepia(0.2) saturate(1.6) hue-rotate(-10deg);
-    }
-
-    .filter-cool {
-      filter: contrast(1.1) brightness(1.1) saturate(0.8) hue-rotate(10deg);
-    }
-
-    .sticker {
-      cursor: move;
-      position: absolute;
-      user-select: none;
-    }
-
-    .scroll-hide::-webkit-scrollbar {
-      display: none;
-    }
-
-    /* Floating background shapes */
-    .blob {
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      background: var(--vintage-red);
-      filter: blur(80px);
-      opacity: 0.1;
-      z-index: -1;
-      border-radius: 50%;
-    }
-
-    footer {
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(5px);
-      border-top: 1px solid rgba(0, 0, 0, 0.05);
-    }
-  </style>
+        footer {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .decoration-demo-sticker {
+            position: absolute;
+            z-index: 10;
+            user-select: none;
+            pointer-events: none;
+        }
+        
+        /* Emoji Pack Styles */
+        .emoji-pack-btn {
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+        
+        .emoji-pack-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .emoji-pack-btn.active {
+            border-color: var(--vintage-red);
+            background: rgba(188, 71, 73, 0.1);
+        }
+        
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+        }
+        
+        .emoji-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .emoji-btn:hover {
+            transform: scale(1.1);
+            background: #f0f0f0;
+        }
+        
+        .pack-indicator {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            background: var(--vintage-red);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
 </head>
-
 <body class="min-h-screen">
-  <div class="grain-overlay"></div>
+    <div class="grain-overlay"></div>
 
-  <!-- BACKGROUND BLOBS -->
-  <div class="blob top-0 -left-20 animate-float"></div>
-  <div class="blob bottom-0 -right-20 animate-float delay-2"></div>
+    <!-- BACKGROUND BLOBS - More vibrant and scattered -->
+    <div class="blob blob-brown top-[-10%] left-[-10%] animate-float"></div>
+    <div class="blob blob-red bottom-[20%] right-[-5%] animate-float" style="animation-delay: -2s"></div>
+    <div class="blob blob-tan top-[40%] left-[60%] animate-float" style="animation-delay: -4s"></div>
+    <div class="blob blob-brown bottom-[-10%] left-[10%] opacity-20"></div>
 
-  <!-- GLASS NAV BAR -->
-  <nav
-    class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-4xl glass-nav rounded-full px-6 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
-      <div class="w-8 h-8 bg-[#bc4749] rounded-lg flex items-center justify-center">
-        <i data-lucide="camera" class="w-5 h-5 text-white"></i>
-      </div>
-      <span class="font-retro text-xl font-bold tracking-tight">RetroBooth</span>
-    </div>
-    <div class="flex gap-6 text-sm font-bold uppercase tracking-widest text-gray-700">
-      <button onclick="goHome()" class="hover:text-[#bc4749] transition">Home</button>
-      <button onclick="startApp()" class="hover:text-[#bc4749] transition">Booth</button>
-    </div>
-  </nav>
-
-  <!-- LANDING PAGE -->
-  <div id="landing-page" class="relative z-10 flex flex-col items-center">
-    <!-- Hero Section -->
-    <section class="min-h-screen flex flex-col items-center justify-center p-6 pt-24 text-center w-full">
-      <div class="reveal">
-        <h1 class="text-7xl md:text-9xl font-retro text-[#bc4749] mb-4 drop-shadow-md">RetroBooth</h1>
-        <p class="text-xl md:text-2xl max-w-2xl mx-auto mb-8 leading-relaxed opacity-80">
-          A digital soul in an analog body. Capture timeless moments in a classic 3-5 photo strip.
-        </p>
-      </div>
-
-      <div class="flex flex-wrap justify-center gap-6 mb-12 reveal" style="animation-delay: 0.3s">
-        <!-- Demo Strip 1: B/W Vintage Theme -->
-        <div
-          class="strip-preview -rotate-3 scale-75 md:scale-90 opacity-90 hover:rotate-0 transition-transform duration-500 animate-float">
-          <div class="w-32 h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
-          </div>
-          <div class="w-32 h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
-          </div>
-          <div class="w-32 h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
-          </div>
-          <p class="font-marker text-sm mt-2 text-center">Analog Souls</p>
+    <!-- GLASS NAV BAR -->
+    <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl glass-nav rounded-full px-4 md:px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
+            <div class="w-8 h-8 bg-[#bc4749] rounded-lg flex items-center justify-center">
+                <i data-lucide="camera" class="w-5 h-5 text-white"></i>
+            </div>
+            <span class="font-retro text-lg md:text-xl font-bold tracking-tight">RetroBooth</span>
         </div>
-        <!-- Demo Strip 2: B/W Photography Theme -->
-        <div
-          class="hidden md:block strip-preview rotate-3 scale-90 opacity-90 hover:rotate-0 transition-transform duration-500 animate-float delay-1">
-          <div class="w-32 h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
-          </div>
-          <div class="w-32 h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
-          </div>
-          <div class="w-32 h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=300&auto=format&fit=crop" class="w-full h-full object-cover filter-bw">
-          </div>
-          <p class="font-marker text-sm mt-2 text-center">Focus & Flow</p>
+        <div class="flex gap-4 md:gap-6 text-[10px] md:text-sm font-bold uppercase tracking-widest text-gray-700">
+            <button onclick="goHome()" class="hover:text-[#bc4749] transition">Home</button>
+            <button onclick="startApp()" class="hover:text-[#bc4749] transition">Booth</button>
         </div>
-      </div>
+    </nav>
 
-      <button onclick="startApp()" class="reveal px-10 py-4 bg-[#386641] text-white text-2xl rounded-full font-retro hover:bg-[#2a4d31] transform transition hover:scale-105 shadow-xl" style="animation-delay: 0.6s">
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="relative z-10 flex flex-col items-center">
+        <!-- Hero Section -->
+        <section class="min-h-screen flex flex-col items-center justify-center p-6 pt-32 text-center w-full">
+            <div class="reveal mt-8">
+                <h1 class="text-6xl md:text-9xl font-retro text-[#bc4749] mb-4 drop-shadow-md">RetroBooth</h1>
+                <p class="text-lg md:text-2xl max-w-2xl mx-auto mb-10 leading-relaxed opacity-80 px-4">
+                    A digital soul in an analog body. Capture timeless moments in a classic photo strip.
+                </p>
+            </div>
+            
+            <!-- Demo Section -->
+            <div class="flex flex-wrap justify-center gap-4 md:gap-8 mb-16 reveal" style="animation-delay: 0.3s">
+                <div class="strip-preview -rotate-3 scale-75 md:scale-90 opacity-95 hover:rotate-0 transition-all duration-500 animate-float">
+                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <p class="font-marker text-xs md:text-sm mt-2 text-center">Analog Souls</p>
+                </div>
+                <div class="hidden sm:block strip-preview rotate-3 scale-75 md:scale-90 opacity-95 hover:rotate-0 transition-all duration-500 animate-float" style="animation-delay: 1.5s">
+                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <p class="font-marker text-xs md:text-sm mt-2 text-center">Focus & Flow</p>
+                </div>
+            </div>
+
+            <button onclick="startApp()" class="reveal px-8 md:px-12 py-4 bg-[#386641] text-white text-xl md:text-2xl rounded-full font-retro hover:bg-[#2a4d31] transform transition hover:scale-105 shadow-xl mb-20" style="animation-delay: 0.6s">
                 Step Into the Booth
             </button>
-    </section>
+        </section>
 
-    <!-- Layout Styles Showcase -->
-    <section class="w-full max-w-6xl px-6 py-24 text-center">
-      <h2 class="text-4xl font-retro text-[#bc4749] mb-12">Choose Your Style</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 items-start justify-center">
-        <!-- 3 Strip Vertical -->
-        <div class="flex flex-col items-center">
-          <p class="font-bold text-gray-500 mb-4 uppercase tracking-widest text-xs">The Classic (3-Strip)</p>
-          <div class="strip-preview scale-75 origin-top">
-            <div class="w-28 h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw">
+        <!-- Layout Styles Showcase -->
+        <section class="w-full max-w-6xl px-6 py-24 text-center">
+            <h2 class="text-3xl md:text-4xl font-retro text-[#bc4749] mb-16">Choose Your Style</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 items-start justify-center">
+                <!-- 3 Strip Vertical -->
+                <div class="flex flex-col items-center">
+                    <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">The Classic (3-Strip)</p>
+                    <div class="strip-preview scale-90 md:scale-100">
+                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw"></div>
+                    </div>
+                </div>
+                <!-- 4 Strip Vertical -->
+                <div class="flex flex-col items-center">
+                    <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">The Standard (4-Strip)</p>
+                    <div class="strip-preview scale-90 md:scale-100">
+                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=200" class="w-full h-full object-cover filter-bw"></div>
+                    </div>
+                </div>
+                <!-- 5 Strip Vertical -->
+                <div class="flex flex-col items-center">
+                    <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">The Tall (5-Strip)</p>
+                    <div class="strip-preview scale-90 md:scale-100">
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw"></div>
+                    </div>
+                </div>
             </div>
-            <div class="w-28 h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <div class="w-28 h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <p class="font-marker text-xs mt-2 text-center">Style 01</p>
-          </div>
-        </div>
-        <!-- 4 Strip Vertical -->
-        <div class="flex flex-col items-center">
-          <p class="font-bold text-gray-500 mb-4 uppercase tracking-widest text-xs">The Standard (4-Strip)</p>
-          <div class="strip-preview scale-75 origin-top">
-            <div class="w-28 h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <div class="w-28 h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <div class="w-28 h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <div class="w-28 h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <p class="font-marker text-xs mt-2 text-center">Style 02</p>
-          </div>
-        </div>
-        <!-- 5 Strip Vertical -->
-        <div class="flex flex-col items-center">
-          <p class="font-bold text-gray-500 mb-4 uppercase tracking-widest text-xs">The Tall (5-Strip)</p>
-          <div class="strip-preview scale-75 origin-top">
-            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <div class="w-28 h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw">
-            </div>
-            <p class="font-marker text-xs mt-2 text-center">Style 03</p>
-          </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <!-- Footer -->
-    <footer class="w-full py-12 px-6 border-t border-gray-100 flex flex-col items-center">
-      <div class="flex gap-4 mb-8">
-        <a href="https://github.com/Ellen-Iconoclust/" target="_blank"
-          class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-black hover:text-white transition-all duration-300">
-          <i data-lucide="github" class="w-6 h-6"></i>
-        </a>
-        <a href="https://www.linkedin.com/in/elisa-pravin-s" target="_blank"
-          class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-[#0077b5] hover:text-white transition-all duration-300">
-          <i data-lucide="linkedin" class="w-6 h-6"></i>
-        </a>
-        <a href="https://instagram.com/pravin_s_elisa" target="_blank"
-          class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-pink-600 hover:text-white transition-all duration-300">
-          <i data-lucide="instagram" class="w-6 h-6"></i>
-        </a>
-      </div>
-      <p class="text-gray-600 font-bold tracking-widest text-xs uppercase mb-2">
-        &copy; 2026 RetroBooth All Rights Reserved
-      </p>
-      <p class="text-gray-400 text-xs">
-        Made by <a href="https://ellen-dev.vercel.app" target="_blank"
-          class="text-[#bc4749] hover:underline font-bold">Ellen Iconoclust</a>
-      </p>
-    </footer>
-  </div>
+        <!-- Emoji Packs Showcase -->
+        <section class="w-full max-w-6xl px-6 py-24 text-center">
+            <h2 class="text-3xl md:text-4xl font-retro text-[#bc4749] mb-16">Customize the Strips</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mb-16 leading-relaxed">
+                Choose from themed emoji packs to decorate your photo strips. Drag and drop stickers to create unique memories.
+            </p>
+            
+            
 
-  <!-- BOOTH INTERFACE -->
-  <div id="booth-page"
-    class="hidden min-h-screen p-4 pt-24 md:p-8 md:pt-24 flex flex-col lg:flex-row gap-8 relative z-10">
+            <!-- Demo Strips with Emojis -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start justify-center mt-12">
+                <!-- Strip 1 with decorations -->
+                <div class="flex flex-col items-center">
+                    <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">Love Pack</p>
+                    <div class="strip-preview scale-90 md:scale-100 relative">
+                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" class="w-full h-full object-cover filter-bw">
+                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 10px; right: 10px;">💕</div>
+                        </div>
+                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200" class="w-full h-full object-cover filter-bw">
+                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="bottom: 10px; left: 10px;">💖</div>
+                        </div>
+                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=200" class="w-full h-full object-cover filter-bw">
+                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 15px; left: 40%;">💘</div>
+                        </div>
+                        <p class="font-marker text-sm md:text-base mt-2 text-center" style="color: #bc4749;">Love Story</p>
+                    </div>
+                </div>
+                
+                <!-- Strip 2 with decorations -->
+                <div class="flex flex-col items-center">
+                    <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">Retro Pack</p>
+                    <div class="strip-preview scale-90 md:scale-100 relative">
+                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=200" class="w-full h-full object-cover filter-retro">
+                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 5px; left: 5px;">📼</div>
+                        </div>
+                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=200" class="w-full h-full object-cover filter-retro">
+                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="bottom: 10px; right: 10px;">📻</div>
+                        </div>
+                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-retro">
+                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">🎞️</div>
+                        </div>
+                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=200" class="w-full h-full object-cover filter-retro">
+                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 5px; right: 5px;">📸</div>
+                        </div>
+                        <p class="font-marker text-sm md:text-base mt-2 text-center" style="color: #386641;">Retro Vibes</p>
+                    </div>
+                </div>
+                
+                <!-- Strip 3 with decorations -->
+                <div class="flex flex-col items-center">
+                    <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">Beach Pack</p>
+                    <div class="strip-preview scale-90 md:scale-100 relative">
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-warm">
+                            <div class="decoration-demo-sticker text-lg md:text-xl" style="top: 5px; right: 5px;">🌊</div>
+                        </div>
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-warm">
+                            <div class="decoration-demo-sticker text-lg md:text-xl" style="bottom: 5px; left: 5px;">☀️</div>
+                        </div>
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-warm">
+                            <div class="decoration-demo-sticker text-lg md:text-xl" style="top: 50%; right: 10px;">🏝️</div>
+                        </div>
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" class="w-full h-full object-cover filter-warm">
+                            <div class="decoration-demo-sticker text-lg md:text-xl" style="bottom: 10px; right: 10px;">🐚</div>
+                        </div>
+                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200" class="w-full h-full object-cover filter-warm">
+                            <div class="decoration-demo-sticker text-lg md:text-xl" style="top: 10px; left: 10px;">🌴</div>
+                        </div>
+                        <p class="font-marker text-sm md:text-base mt-2 text-center">Beach Day</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <!-- Left: Controls & Feed -->
-    <div class="flex-1 flex flex-col items-center">
-      <div class="w-full max-w-2xl">
-        <div class="flex justify-between items-end mb-4">
-          <h2 class="text-3xl font-retro text-[#bc4749]">Live Preview</h2>
-          <div id="status-text" class="text-lg font-bold">Ready to Shoot</div>
-        </div>
+        <!-- Download Demo Section -->
+        <section class="w-full max-w-6xl px-6 py-24 text-center">
+            <h2 class="text-3xl md:text-4xl font-retro text-[#bc4749] mb-16">Save & Share Your Memories</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed">
+                Download high-quality PNG images of your photo strips to share on social media, print as keepsakes, or use as digital memories.
+            </p>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-16">
+                <!-- Demo Download Strip -->
+                <div class="strip-preview scale-90 md:scale-100">
+                    <div class="w-32 md:w-40 h-40 md:h-48 bg-gray-200 mb-2 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300" class="w-full h-full object-cover filter-bw">
+                        <div class="decoration-demo-sticker text-2xl" style="top: 10px; right: 10px;">✨</div>
+                    </div>
+                    <div class="w-32 md:w-40 h-40 md:h-48 bg-gray-200 mb-2 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=300" class="w-full h-full object-cover filter-bw">
+                        <div class="decoration-demo-sticker text-2xl" style="bottom: 10px; left: 10px;">🌟</div>
+                    </div>
+                    <div class="w-32 md:w-40 h-40 md:h-48 bg-gray-200 mb-2 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=300" class="w-full h-full object-cover filter-bw">
+                        <div class="decoration-demo-sticker text-2xl" style="top: 15px; left: 40%;">⭐</div>
+                    </div>
+                    <p class="font-marker text-lg md:text-xl mt-3 text-center" style="color: #bc4749;">Golden Hour</p>
+                    <div class="text-[9px] text-gray-400 text-center mt-1 uppercase font-bold tracking-widest">Jan 15, 2026</div>
+                </div>
+                
+                <!-- Download Info -->
+                <div class="text-left max-w-md">
+                    <h3 class="text-xl md:text-2xl font-retro mb-6">High-Quality Downloads</h3>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                            </div>
+                            <span>High-resolution PNG files (3x scaling)</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                            </div>
+                            <span>Perfect for printing at photo booth size</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                            </div>
+                            <span>Social media ready with clean background</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                            </div>
+                            <span>Preserves all decorations and filters</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="p-4 bg-gradient-to-r from-[#bc4749] to-[#9a3a3c] text-white rounded-2xl font-bold text-center">
+                        <div class="flex items-center justify-center gap-3">
+                            <i data-lucide="download" class="w-6 h-6"></i>
+                            <span>Ready to Download Your Creation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 p-8 bg-white/50 backdrop-blur-sm rounded-3xl max-w-3xl mx-auto border border-white/30">
+                <h3 class="text-xl md:text-2xl font-retro mb-4">Ready to Create Your Own?</h3>
+                <p class="text-gray-600 mb-8">
+                    Step into the booth and create your own vintage photo strips. Capture moments, add decorations from themed packs, and download your memories.
+                </p>
+                <button onclick="startApp()" class="px-10 py-4 bg-[#386641] text-white text-xl rounded-full font-retro hover:bg-[#2a4d31] transform transition hover:scale-105 shadow-xl">
+                    Start Creating Now
+                </button>
+            </div>
+        </section>
 
-        <!-- Camera Container -->
-        <div class="camera-box rounded-lg">
-          <video id="video" autoplay playsinline class="w-full h-full object-cover transition-all"></video>
-          <canvas id="canvas-process" class="hidden"></canvas>
-          <div id="flash-effect" class="flash"></div>
-          <div id="countdown"
-            class="absolute inset-0 flex items-center justify-center text-9xl font-retro text-white drop-shadow-2xl opacity-0 pointer-events-none">
-            3</div>
-        </div>
-
-        <!-- Live Filters -->
-        <div class="mt-6 overflow-x-auto py-2 flex gap-4 scroll-hide">
-          <button onclick="setFilter('none')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Original</button>
-          <button onclick="setFilter('retro')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Retro</button>
-          <button onclick="setFilter('bw')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">B&W</button>
-          <button onclick="setFilter('sepia')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Sepia</button>
-          <button onclick="setFilter('warm')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Warm</button>
-          <button onclick="setFilter('cool')" class="flex-shrink-0 px-4 py-2 bg-white border-2 border-black rounded-md hover:bg-black hover:text-white transition">Cool</button>
-        </div>
-
-        <!-- Main Actions -->
-        <div class="mt-8 flex items-center justify-center gap-6">
-          <button onclick="resetSession()" class="p-4 bg-gray-200 rounded-full hover:bg-gray-300 transition" title="Reset Session">
-                        <i data-lucide="rotate-ccw" class="w-6 h-6"></i>
-                    </button>
-
-          <button id="capture-btn" onclick="startCaptureSequence()" class="shutter-btn w-24 h-24 rounded-full border-8 border-white shadow-2xl flex items-center justify-center text-white">
-                        <i data-lucide="camera" class="w-10 h-10"></i>
-                    </button>
-
-          <button onclick="toggleMirror()" class="p-4 bg-gray-200 rounded-full hover:bg-gray-300 transition" title="Toggle Mirror">
-                        <i data-lucide="flip-horizontal" class="w-6 h-6"></i>
-                    </button>
-        </div>
-      </div>
+        <!-- Footer -->
+        <footer class="w-full py-16 px-6 flex flex-col items-center text-center">
+            <div class="flex gap-4 mb-10">
+                <a href="https://github.com/Ellen-Iconoclust/" target="_blank" class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-black hover:text-white transition-all duration-300">
+                    <i data-lucide="github" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/elisa-pravin-s" target="_blank" class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-[#0077b5] hover:text-white transition-all duration-300">
+                    <i data-lucide="linkedin" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </a>
+                <a href="https://instagram.com/pravin_s_elisa" target="_blank" class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-pink-600 hover:text-white transition-all duration-300">
+                    <i data-lucide="instagram" class="w-5 h-5 md:w-6 md:h-6"></i>
+                </a>
+            </div>
+            <p class="text-gray-600 font-bold tracking-[0.2em] text-[10px] uppercase mb-3 px-4">
+                &copy; 2026 RetroBooth All Rights Reserved
+            </p>
+            <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold">
+                Made by <a href="https://ellen-dev.vercel.app" target="_blank" class="text-[#bc4749] hover:underline">Ellen Iconoclust</a>
+            </p>
+        </footer>
     </div>
 
-    <!-- Right: Strip Preview & Customization -->
-    <div class="w-full lg:w-96 flex flex-col gap-6">
-      <div class="bg-[#fcf8f3] p-6 rounded-2xl shadow-xl border border-gray-200">
-        <h3 class="text-2xl font-retro mb-4">Your Strip</h3>
+    <!-- BOOTH INTERFACE -->
+    <div id="booth-page" class="hidden min-h-screen p-4 pt-24 md:p-8 md:pt-24 flex flex-col lg:flex-row gap-8 relative z-10 max-w-7xl mx-auto">
+        <!-- Left: Feed -->
+        <div class="flex-1 flex flex-col items-center">
+            <div class="w-full max-w-2xl">
+                <div class="flex justify-between items-end mb-4 px-2">
+                    <h2 class="text-2xl md:text-3xl font-retro text-[#bc4749]">Live Preview</h2>
+                    <div id="status-text" class="text-sm md:text-base font-bold opacity-60 italic">Ready to Shoot</div>
+                </div>
 
-        <!-- The Photo Strip Container -->
-        <div id="final-strip" class="strip-preview relative min-h-[400px] w-64 bg-white">
-          <div id="strip-photos" class="flex flex-col gap-3">
-            <!-- Captured photos will appear here -->
-          </div>
+                <div class="camera-box rounded-xl">
+                    <video id="video" autoplay playsinline class="w-full h-full object-cover transition-all"></video>
+                    <canvas id="canvas-process" class="hidden"></canvas>
+                    <div id="flash-effect" class="flash"></div>
+                    <div id="countdown" class="absolute inset-0 flex items-center justify-center text-8xl md:text-9xl font-retro text-white drop-shadow-2xl opacity-0 pointer-events-none">3</div>
+                </div>
 
-          <div class="mt-4 px-2">
-            <input type="text" id="strip-caption" placeholder="Tap to write..." class="w-full text-center font-marker text-xl bg-transparent border-none focus:ring-0 placeholder-gray-300" maxlength="30">
-            <div id="date-stamp" class="text-[10px] text-gray-400 text-center mt-1 uppercase tracking-tighter"></div>
-          </div>
+                <div class="mt-6 overflow-x-auto py-2 flex gap-3 px-2 scroll-hide">
+                    <button onclick="setFilter('none')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Original</button>
+                    <button onclick="setFilter('bw')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">B&W</button>
+                    <button onclick="setFilter('retro')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Vintage</button>
+                    <button onclick="setFilter('sepia')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Sepia</button>
+                    <button onclick="setFilter('warm')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Warm</button>
+                    <button onclick="setFilter('cool')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Cool</button>
+                </div>
 
-          <!-- Stickers layer -->
-          <div id="stickers-container" class="absolute inset-0 pointer-events-none"></div>
+                <div class="mt-8 flex items-center justify-center gap-6">
+                    <button onclick="resetSession()" class="p-4 bg-white/50 backdrop-blur rounded-full hover:bg-white transition shadow-sm border border-white/20" title="Reset">
+                        <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                    </button>
+                    <button id="capture-btn" onclick="startCaptureSequence()" class="shutter-btn w-20 h-20 md:w-24 md:h-24 rounded-full border-[6px] md:border-[10px] border-white shadow-2xl flex items-center justify-center text-white">
+                        <i data-lucide="camera" class="w-8 h-8 md:w-10 md:h-10"></i>
+                    </button>
+                    <button onclick="toggleMirror()" class="p-4 bg-white/50 backdrop-blur rounded-full hover:bg-white transition shadow-sm border border-white/20" title="Mirror">
+                        <i data-lucide="flip-horizontal" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- Customization Tools -->
-        <div class="mt-8 space-y-4">
-          <div>
-            <label class="text-sm font-bold uppercase block mb-2">Layout</label>
-            <select id="layout-select" onchange="updateLayout()" class="w-full p-2 rounded border border-gray-300 bg-white">
+        <!-- Right: Customization -->
+        <div class="w-full lg:w-96 flex flex-col gap-6">
+            <div class="bg-white/40 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-white/40">
+                <h3 class="text-2xl font-retro mb-6">Your Strip</h3>
+                
+                <div id="final-strip" class="strip-preview relative min-h-[400px] w-60 md:w-64 bg-white mx-auto">
+                    <div id="strip-photos" class="flex flex-col gap-2 md:gap-3"></div>
+                    <div class="mt-4 px-2">
+                        <input type="text" id="strip-caption" placeholder="Tap to write..." class="w-full text-center font-marker text-lg md:text-xl bg-transparent border-none focus:ring-0 placeholder-gray-300" maxlength="30">
+                        <div id="date-stamp" class="text-[9px] text-gray-400 text-center mt-1 uppercase font-bold tracking-widest"></div>
+                    </div>
+                    <div id="stickers-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+                </div>
+
+                <div class="mt-8 space-y-6">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest block mb-2 text-gray-500">Layout</label>
+                        <select id="layout-select" onchange="updateLayout()" class="w-full p-3 rounded-xl border border-gray-200 bg-white/80 text-sm">
                             <option value="3">3 Photos (Classic)</option>
                             <option value="4">4 Photos (Standard)</option>
                             <option value="5">5 Photos (Tall)</option>
                         </select>
-          </div>
+                    </div>
 
-          <div>
-            <label class="text-sm font-bold uppercase block mb-2">Add Decoration</label>
-            <div class="flex gap-2 flex-wrap">
-              <button onclick="addSticker('❤️')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">❤️</button>
-              <button onclick="addSticker('⭐')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">⭐</button>
-              <button onclick="addSticker('✨')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">✨</button>
-              <button onclick="addSticker('🎞️')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">🎞️</button>
-              <button onclick="addSticker('📸')" class="p-2 bg-white border border-gray-200 rounded hover:scale-110 transition">📸</button>
-            </div>
-          </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest block mb-2 text-gray-500">Emoji Packs</label>
+                        <div class="flex gap-2 overflow-x-auto pb-2 scroll-hide">
+                            <button onclick="selectEmojiPack('classic')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm active" data-pack="classic">
+                                Classic
+                            </button>
+                            <button onclick="selectEmojiPack('retro')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="retro">
+                                Retro
+                            </button>
+                            <button onclick="selectEmojiPack('love')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="love">
+                                Love
+                            </button>
+                            <button onclick="selectEmojiPack('christmas')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="christmas">
+                                Christmas
+                            </button>
+                            <button onclick="selectEmojiPack('halloween')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="halloween">
+                                Halloween
+                            </button>
+                            <button onclick="selectEmojiPack('birthday')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="birthday">
+                                Birthday
+                            </button>
+                            <button onclick="selectEmojiPack('beach')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="beach">
+                                Beach
+                            </button>
+                            <button onclick="selectEmojiPack('music')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="music">
+                                Music
+                            </button>
+                        </div>
+                        
+                        <div id="emoji-grid" class="emoji-grid mt-3">
+                            <!-- Classic Pack (Default) -->
+                            <div class="emoji-btn" onclick="addSticker('❤️')">❤️</div>
+                            <div class="emoji-btn" onclick="addSticker('⭐')">⭐</div>
+                            <div class="emoji-btn" onclick="addSticker('✨')">✨</div>
+                            <div class="emoji-btn" onclick="addSticker('🎞️')">🎞️</div>
+                            <div class="emoji-btn" onclick="addSticker('📸')">📸</div>
+                            <div class="emoji-btn" onclick="addSticker('🌟')">🌟</div>
+                            <div class="emoji-btn" onclick="addSticker('💫')">💫</div>
+                            <div class="emoji-btn" onclick="addSticker('🎯')">🎯</div>
+                            <div class="emoji-btn" onclick="addSticker('🖤')">🖤</div>
+                            <div class="emoji-btn" onclick="addSticker('🤍')">🤍</div>
+                            <div class="emoji-btn" onclick="addSticker('💎')">💎</div>
+                            <div class="emoji-btn" onclick="addSticker('🔮')">🔮</div>
+                        </div>
+                    </div>
 
-          <div class="pt-4 flex flex-col gap-3">
-            <button id="download-btn" onclick="exportStrip()" disabled class="w-full py-3 bg-[#bc4749] text-white rounded-lg font-bold opacity-50 cursor-not-allowed transition hover:brightness-110 shadow-lg">
-                            Download Strip (.PNG)
+                    <div class="pt-4 flex flex-col gap-3">
+                        <button id="download-btn" onclick="exportStrip()" disabled class="w-full py-4 bg-[#bc4749] text-white rounded-2xl font-bold text-sm uppercase tracking-widest opacity-50 cursor-not-allowed transition hover:brightness-110 shadow-lg">
+                            Download PNG
                         </button>
-            <button onclick="goHome()" class="w-full py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-bold hover:bg-gray-200 transition">
+                        <button onclick="goHome()" class="w-full py-3 bg-gray-200/50 text-gray-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition">
                             Back to Home
                         </button>
-          </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Audio Effects -->
-  <audio id="audio-shutter" src="https://assets.mixkit.co/active_storage/sfx/2855/2855-preview.mp3"
-    preload="auto"></audio>
-  <audio id="audio-timer" src="https://assets.mixkit.co/active_storage/sfx/1071/1071-preview.mp3"
-    preload="auto"></audio>
+    <audio id="audio-shutter" src="https://assets.mixkit.co/active_storage/sfx/2855/2855-preview.mp3" preload="auto"></audio>
+    <audio id="audio-timer" src="https://assets.mixkit.co/active_storage/sfx/1071/1071-preview.mp3" preload="auto"></audio>
 
-  <script>
-    // Initialize Lucide Icons
+    <script>
         lucide.createIcons();
 
         const video = document.getElementById('video');
@@ -467,15 +637,26 @@
         const photoContainer = document.getElementById('strip-photos');
         const downloadBtn = document.getElementById('download-btn');
         const dateStampEl = document.getElementById('date-stamp');
+        const emojiGrid = document.getElementById('emoji-grid');
 
         let stream = null;
-        let capturedPhotos = [];
         let maxPhotos = 3;
         let isCapturing = false;
         let currentFilter = 'none';
         let isMirrored = false;
+        let currentEmojiPack = 'classic';
 
-        // --- Core App Functions ---
+        // Emoji packs definition
+        const emojiPacks = {
+            classic: ['❤️', '⭐', '✨', '🎞️', '📸', '🌟', '💫', '🎯', '🖤', '🤍', '💎', '🔮'],
+            retro: ['📽️', '📻', '🎞️', '📼', '📹', '🎥', '📟', '💾', '📠', '🕹️', '📺', '🎬'],
+            love: ['❤️', '💕', '💖', '💗', '💓', '💘', '💝', '💞', '💌', '🥰', '😍', '💋'],
+            christmas: ['🎄', '🎅', '🤶', '🦌', '🎁', '🎀', '🔔', '❄️', '☃️', '⛄', '🧦', '🌟'],
+            halloween: ['🎃', '👻', '💀', '🕷️', '🕸️', '🧙', '🦇', '🔮', '⚰️', '🧟', '🍬', '🍭'],
+            birthday: ['🎂', '🎈', '🎉', '🎊', '🥳', '🎁', '🧁', '🍰', '🥂', '🎇', '🪅', '🪩'],
+            beach: ['🏖️', '🌊', '☀️', '🏝️', '🐚', '🌴', '🦀', '🐠', '🩴', '🕶️', '🍹', '⛱️'],
+            music: ['🎵', '🎶', '🎧', '🎤', '🎸', '🥁', '🎹', '🎷', '🎺', '🪗', '🎻', '📻']
+        };
 
         async function startApp() {
             document.getElementById('landing-page').classList.add('hidden');
@@ -485,15 +666,14 @@
             try {
                 if (!stream) {
                     stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { width: 1280, height: 720 }, 
+                        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" }, 
                         audio: false 
                     });
                     video.srcObject = stream;
                 }
                 updateDate();
             } catch (err) {
-                alert("Camera access is required for the photobooth to work. Please check permissions!");
-                console.error(err);
+                alert("Camera access required!");
                 goHome();
             }
         }
@@ -505,16 +685,12 @@
         }
 
         function updateDate() {
-            const now = new Date();
-            dateStampEl.innerText = now.toLocaleDateString('en-US', { 
-                month: 'short', day: 'numeric', year: 'numeric' 
-            });
+            dateStampEl.innerText = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
         function setFilter(filter) {
             currentFilter = filter;
-            video.className = 'w-full h-full object-cover transition-all filter-' + filter;
-            if (isMirrored) video.classList.add('-scale-x-100');
+            video.className = `w-full h-full object-cover transition-all filter-${filter} ${isMirrored ? '-scale-x-100' : ''}`;
         }
 
         function toggleMirror() {
@@ -528,12 +704,11 @@
         }
 
         function resetSession() {
-            capturedPhotos = [];
             isCapturing = false;
             photoContainer.innerHTML = '';
             for (let i = 1; i <= maxPhotos; i++) {
                 const slot = document.createElement('div');
-                slot.className = 'empty-slot w-full h-32 bg-gray-100 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-300';
+                slot.className = 'w-full h-28 md:h-32 bg-gray-50 flex items-center justify-center text-[10px] text-gray-300 border border-gray-100 uppercase tracking-widest font-bold';
                 slot.innerText = `Photo ${i}`;
                 photoContainer.appendChild(slot);
             }
@@ -543,24 +718,43 @@
             document.getElementById('stickers-container').innerHTML = '';
         }
 
-        // --- Capture Sequence ---
+        function selectEmojiPack(packName) {
+            currentEmojiPack = packName;
+            
+            // Update active button
+            document.querySelectorAll('.emoji-pack-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-pack') === packName) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update emoji grid
+            emojiGrid.innerHTML = '';
+            emojiPacks[packName].forEach(emoji => {
+                const btn = document.createElement('div');
+                btn.className = 'emoji-btn';
+                btn.innerHTML = emoji;
+                btn.onclick = () => addSticker(emoji);
+                emojiGrid.appendChild(btn);
+            });
+        }
 
         async function startCaptureSequence() {
             if (isCapturing) return;
             isCapturing = true;
-            capturedPhotos = [];
             photoContainer.innerHTML = '';
             downloadBtn.disabled = true;
             downloadBtn.classList.add('opacity-50');
 
             for (let i = 0; i < maxPhotos; i++) {
-                document.getElementById('status-text').innerText = `Preparing Shot ${i + 1}/${maxPhotos}`;
+                document.getElementById('status-text').innerText = `Smile! ${i + 1}/${maxPhotos}`;
                 await runCountdown();
                 capturePhoto();
                 await new Promise(r => setTimeout(r, 1000));
             }
 
-            document.getElementById('status-text').innerText = "Strip Complete!";
+            document.getElementById('status-text').innerText = "Looks great!";
             isCapturing = false;
             downloadBtn.disabled = false;
             downloadBtn.classList.remove('opacity-50');
@@ -572,7 +766,6 @@
                 countdownEl.classList.remove('opacity-0');
                 countdownEl.innerText = count;
                 document.getElementById('audio-timer').play();
-
                 const timer = setInterval(() => {
                     count--;
                     if (count <= 0) {
@@ -593,117 +786,60 @@
 
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            
-            if (isMirrored) {
-                ctx.translate(canvas.width, 0);
-                ctx.scale(-1, 1);
-            }
-
+            if (isMirrored) { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
             const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
             const photoEl = document.createElement('div');
-            photoEl.className = 'w-full h-32 overflow-hidden bg-black shadow-inner';
-            
+            photoEl.className = 'w-full h-28 md:h-32 overflow-hidden bg-black';
             const img = document.createElement('img');
             img.src = dataUrl;
             img.className = 'w-full h-full object-cover filter-' + currentFilter;
-            
             photoEl.appendChild(img);
             photoContainer.appendChild(photoEl);
-            capturedPhotos.push(dataUrl);
         }
-
-        // --- Stickers & Decorations ---
 
         function addSticker(emoji) {
             const container = document.getElementById('stickers-container');
             const sticker = document.createElement('div');
-            sticker.className = 'sticker text-3xl pointer-events-auto';
+            sticker.className = 'sticker text-2xl md:text-3xl pointer-events-auto cursor-grab active:cursor-grabbing';
             sticker.innerText = emoji;
-            sticker.style.left = '40%';
-            sticker.style.top = '40%';
-            
+            sticker.style.left = '40%'; sticker.style.top = '40%';
             makeDraggable(sticker);
             container.appendChild(sticker);
         }
 
         function makeDraggable(el) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            el.onmousedown = dragMouseDown;
-            el.ontouchstart = dragMouseDown;
-
-            function dragMouseDown(e) {
-                e = e || window.event;
-                e.preventDefault();
-                pos3 = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-                pos4 = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-                document.onmouseup = closeDragElement;
-                document.ontouchend = closeDragElement;
-                document.onmousemove = elementDrag;
-                document.ontouchmove = elementDrag;
-            }
-
-            function elementDrag(e) {
-                e = e || window.event;
-                const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-                const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-                pos1 = pos3 - clientX;
-                pos2 = pos4 - clientY;
-                pos3 = clientX;
-                pos4 = clientY;
-                el.style.top = (el.offsetTop - pos2) + "px";
-                el.style.left = (el.offsetLeft - pos1) + "px";
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-                document.ontouchend = null;
-                document.ontouchmove = null;
-            }
+            let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
+            const start = (e) => {
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                p3 = clientX; p4 = clientY;
+                document.onmousemove = drag; document.ontouchmove = drag;
+                document.onmouseup = end; document.ontouchend = end;
+            };
+            const drag = (e) => {
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                p1 = p3 - clientX; p2 = p4 - clientY;
+                p3 = clientX; p4 = clientY;
+                el.style.top = (el.offsetTop - p2) + "px";
+                el.style.left = (el.offsetLeft - p1) + "px";
+            };
+            const end = () => { document.onmousemove = null; document.ontouchmove = null; };
+            el.onmousedown = start; el.ontouchstart = start;
         }
 
         async function exportStrip() {
             const strip = document.getElementById('final-strip');
-            const originalBorder = strip.style.border;
-            const originalShadow = strip.style.boxShadow;
-            
-            strip.style.border = 'none';
-            strip.style.boxShadow = 'none';
-
-            try {
-                const canvasExport = await html2canvas(strip, {
-                    scale: 3,
-                    backgroundColor: '#ffffff',
-                    logging: false,
-                    useCORS: true
-                });
-
-                const link = document.createElement('a');
-                link.download = `retrobooth-${Date.now()}.png`;
-                link.href = canvasExport.toDataURL('image/png');
-                link.click();
-            } catch (err) {
-                console.error("Export failed", err);
-                alert("Failed to generate image.");
-            } finally {
-                strip.style.border = originalBorder;
-                strip.style.boxShadow = originalShadow;
-            }
+            const canvasExport = await html2canvas(strip, { scale: 3, backgroundColor: '#ffffff', useCORS: true });
+            const link = document.createElement('a');
+            link.download = `retrobooth-${Date.now()}.png`;
+            link.href = canvasExport.toDataURL('image/png');
+            link.click();
         }
 
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && !document.getElementById('booth-page').classList.contains('hidden')) {
-                if (!isCapturing && document.activeElement.tagName !== 'INPUT') {
-                    e.preventDefault();
-                    startCaptureSequence();
-                }
-            }
-        });
-
         resetSession();
-  </script>
+    </script>
 </body>
-
 </html>
