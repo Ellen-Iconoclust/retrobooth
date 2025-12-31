@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Theme Color Meta Tags -->
+    <meta name="theme-color" content="#f4ece1" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#582f0e" media="(prefers-color-scheme: dark)">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="msapplication-navbutton-color" content="#582f0e">
+    
     <title>RetroBooth - Vintage Photo Strip Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -29,13 +36,52 @@
         .font-retro { font-family: 'DM Serif Display', serif; }
         .font-marker { font-family: 'Permanent Marker', cursive; }
         
-        /* Glassmorphism Nav */
+        /* Glassmorphism Nav - Updated for Mobile */
         .glass-nav {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .glass-nav {
+                padding: 0.5rem 0.75rem;
+                border-radius: 20px;
+                width: 95%;
+            }
+            
+            .glass-nav .nav-links {
+                gap: 0.75rem;
+                font-size: 10px;
+            }
+            
+            .glass-nav .logo-text {
+                font-size: 16px;
+            }
+            
+            .glass-nav .logo-icon {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .glass-nav {
+                padding: 0.4rem 0.6rem;
+                width: 96%;
+            }
+            
+            .glass-nav .nav-links {
+                gap: 0.5rem;
+                font-size: 9px;
+            }
+            
+            .glass-nav .logo-text {
+                font-size: 15px;
+            }
         }
 
         .grain-overlay {
@@ -80,6 +126,12 @@
             .camera-box { border: 12px solid #fff; }
         }
 
+        @media (max-width: 480px) {
+            .camera-box {
+                border: 6px solid #fff;
+            }
+        }
+
         .flash {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -104,6 +156,12 @@
             box-shadow: 5px 5px 20px rgba(0,0,0,0.1);
             width: fit-content;
             margin: 0 auto;
+        }
+
+        @media (max-width: 480px) {
+            .strip-preview {
+                padding: 8px;
+            }
         }
 
         .shutter-btn {
@@ -141,6 +199,13 @@
             opacity: 0.25;
             z-index: -1;
             border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .blob {
+                min-width: 200px;
+                opacity: 0.2;
+            }
         }
 
         .blob-brown { background: var(--vintage-brown); }
@@ -188,6 +253,20 @@
             background: rgba(255, 255, 255, 0.5);
             border-radius: 12px;
         }
+
+        @media (max-width: 640px) {
+            .emoji-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .emoji-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 5px;
+            }
+        }
         
         .emoji-btn {
             width: 40px;
@@ -201,6 +280,14 @@
             border: 1px solid rgba(0,0,0,0.05);
             cursor: pointer;
             transition: all 0.2s;
+        }
+
+        @media (max-width: 480px) {
+            .emoji-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
         }
         
         .emoji-btn:hover {
@@ -223,6 +310,92 @@
             justify-content: center;
             font-weight: bold;
         }
+
+        /* Mobile Responsive Spacing */
+        @media (max-width: 768px) {
+            section {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+                padding-top: 3rem !important;
+                padding-bottom: 3rem !important;
+            }
+            
+            h1 {
+                font-size: 3.5rem !important;
+            }
+            
+            h2 {
+                font-size: 2.5rem !important;
+            }
+            
+            .hero-padding {
+                padding-top: 6rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2.8rem !important;
+            }
+            
+            h2 {
+                font-size: 2rem !important;
+            }
+            
+            .hero-padding {
+                padding-top: 5rem !important;
+            }
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            padding: 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 640px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none !important;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                border-radius: 16px;
+                padding: 1rem;
+                margin-top: 0.5rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+            
+            .nav-links.active {
+                display: flex !important;
+            }
+            
+            .nav-links button {
+                width: 100%;
+                padding: 0.75rem;
+                border-radius: 12px;
+                text-align: center;
+                font-size: 14px;
+                background: rgba(255, 255, 255, 0.5);
+                border: 1px solid rgba(0,0,0,0.05);
+            }
+            
+            .nav-links button:hover {
+                background: rgba(188, 71, 73, 0.1);
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -234,15 +407,22 @@
     <div class="blob blob-tan top-[40%] left-[60%] animate-float" style="animation-delay: -4s"></div>
     <div class="blob blob-brown bottom-[-10%] left-[10%] opacity-20"></div>
 
-    <!-- GLASS NAV BAR -->
-    <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl glass-nav rounded-full px-4 md:px-6 py-3 flex items-center justify-between">
+    <!-- GLASS NAV BAR - Updated for Mobile -->
+    <nav class="fixed top-3 sm:top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl glass-nav rounded-full px-3 sm:px-4 md:px-6 py-2 sm:py-3 flex items-center justify-between">
         <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
-            <div class="w-8 h-8 bg-[#bc4749] rounded-lg flex items-center justify-center">
-                <i data-lucide="camera" class="w-5 h-5 text-white"></i>
+            <div class="logo-icon w-7 h-7 sm:w-8 sm:h-8 bg-[#bc4749] rounded-lg flex items-center justify-center">
+                <i data-lucide="camera" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></i>
             </div>
-            <span class="font-retro text-lg md:text-xl font-bold tracking-tight">RetroBooth</span>
+            <span class="logo-text font-retro text-base sm:text-lg md:text-xl font-bold tracking-tight">RetroBooth</span>
         </div>
-        <div class="flex gap-4 md:gap-6 text-[10px] md:text-sm font-bold uppercase tracking-widest text-gray-700">
+        
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <i data-lucide="menu" class="w-4 h-4"></i>
+        </button>
+        
+        <!-- Desktop Navigation Links -->
+        <div class="nav-links flex gap-3 sm:gap-4 md:gap-6 text-xs sm:text-[10px] md:text-sm font-bold uppercase tracking-widest text-gray-700">
             <button onclick="goHome()" class="hover:text-[#bc4749] transition">Home</button>
             <button onclick="startApp()" class="hover:text-[#bc4749] transition">Booth</button>
         </div>
@@ -251,313 +431,311 @@
     <!-- LANDING PAGE -->
     <div id="landing-page" class="relative z-10 flex flex-col items-center">
         <!-- Hero Section -->
-        <section class="min-h-screen flex flex-col items-center justify-center p-6 pt-32 text-center w-full">
+        <section class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 hero-padding text-center w-full">
             <div class="reveal mt-8">
-                <h1 class="text-6xl md:text-9xl font-retro text-[#bc4749] mb-4 drop-shadow-md">RetroBooth</h1>
-                <p class="text-lg md:text-2xl max-w-2xl mx-auto mb-10 leading-relaxed opacity-80 px-4">
+                <h1 class="text-5xl sm:text-6xl md:text-9xl font-retro text-[#bc4749] mb-4 drop-shadow-md">RetroBooth</h1>
+                <p class="text-base sm:text-lg md:text-2xl max-w-2xl mx-auto mb-10 leading-relaxed opacity-80 px-4">
                     A digital soul in an analog body. Capture timeless moments in a classic photo strip.
                 </p>
             </div>
             
             <!-- Demo Section -->
-            <div class="flex flex-wrap justify-center gap-4 md:gap-8 mb-16 reveal" style="animation-delay: 0.3s">
-                <div class="strip-preview -rotate-3 scale-75 md:scale-90 opacity-95 hover:rotate-0 transition-all duration-500 animate-float">
-                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=300" class="w-full h-full object-cover filter-bw"></div>
-                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300" class="w-full h-full object-cover filter-bw"></div>
-                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=300" class="w-full h-full object-cover filter-bw"></div>
-                    <p class="font-marker text-xs md:text-sm mt-2 text-center">Analog Souls</p>
+            <div class="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-8 mb-12 sm:mb-16 reveal" style="animation-delay: 0.3s">
+                <div class="strip-preview -rotate-3 scale-75 sm:scale-90 opacity-95 hover:rotate-0 transition-all duration-500 animate-float">
+                    <div class="w-24 sm:w-28 md:w-32 h-32 sm:h-36 md:h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="w-24 sm:w-28 md:w-32 h-32 sm:h-36 md:h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="w-24 sm:w-28 md:w-32 h-32 sm:h-36 md:h-40 bg-gray-300 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <p class="font-marker text-xs sm:text-xs md:text-sm mt-2 text-center">Analog Souls</p>
                 </div>
-                <div class="hidden sm:block strip-preview rotate-3 scale-75 md:scale-90 opacity-95 hover:rotate-0 transition-all duration-500 animate-float" style="animation-delay: 1.5s">
-                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=300" class="w-full h-full object-cover filter-bw"></div>
-                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=300" class="w-full h-full object-cover filter-bw"></div>
-                    <div class="w-28 md:w-32 h-36 md:h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=300" class="w-full h-full object-cover filter-bw"></div>
-                    <p class="font-marker text-xs md:text-sm mt-2 text-center">Focus & Flow</p>
+                <div class="hidden sm:block strip-preview rotate-3 scale-75 sm:scale-90 opacity-95 hover:rotate-0 transition-all duration-500 animate-float" style="animation-delay: 1.5s">
+                    <div class="w-24 sm:w-28 md:w-32 h-32 sm:h-36 md:h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="w-24 sm:w-28 md:w-32 h-32 sm:h-36 md:h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="w-24 sm:w-28 md:w-32 h-32 sm:h-36 md:h-40 bg-gray-200 mb-2 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=300" class="w-full h-full object-cover filter-bw"></div>
+                    <p class="font-marker text-xs sm:text-xs md:text-sm mt-2 text-center">Focus & Flow</p>
                 </div>
             </div>
 
-            <button onclick="startApp()" class="reveal px-8 md:px-12 py-4 bg-[#386641] text-white text-xl md:text-2xl rounded-full font-retro hover:bg-[#2a4d31] transform transition hover:scale-105 shadow-xl mb-20" style="animation-delay: 0.6s">
+            <button onclick="startApp()" class="reveal px-6 sm:px-8 md:px-12 py-3 sm:py-4 bg-[#386641] text-white text-lg sm:text-xl md:text-2xl rounded-full font-retro hover:bg-[#2a4d31] transform transition hover:scale-105 shadow-xl mb-16 sm:mb-20" style="animation-delay: 0.6s">
                 Step Into the Booth
             </button>
         </section>
 
         <!-- Layout Styles Showcase -->
-        <section class="w-full max-w-6xl px-6 py-24 text-center">
-            <h2 class="text-3xl md:text-4xl font-retro text-[#bc4749] mb-16">Choose Your Style</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 items-start justify-center">
+        <section class="w-full max-w-6xl px-4 sm:px-6 py-16 sm:py-24 text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-retro text-[#bc4749] mb-12 sm:mb-16">Choose Your Style</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 md:gap-8 items-start justify-center">
                 <!-- 3 Strip Vertical -->
                 <div class="flex flex-col items-center">
                     <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">The Classic (3-Strip)</p>
-                    <div class="strip-preview scale-90 md:scale-100">
-                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw"></div>
-                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw"></div>
-                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="strip-preview scale-90 sm:scale-100">
+                        <div class="w-20 sm:w-24 md:w-28 h-24 sm:h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-20 sm:w-24 md:w-28 h-24 sm:h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-20 sm:w-24 md:w-28 h-24 sm:h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw"></div>
                     </div>
                 </div>
                 <!-- 4 Strip Vertical -->
                 <div class="flex flex-col items-center">
                     <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">The Standard (4-Strip)</p>
-                    <div class="strip-preview scale-90 md:scale-100">
-                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" class="w-full h-full object-cover filter-bw"></div>
-                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=200" class="w-full h-full object-cover filter-bw"></div>
-                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200" class="w-full h-full object-cover filter-bw"></div>
-                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=200" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="strip-preview scale-90 sm:scale-100">
+                        <div class="w-20 sm:w-24 md:w-28 h-20 sm:h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-20 sm:w-24 md:w-28 h-20 sm:h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-20 sm:w-24 md:w-28 h-20 sm:h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-20 sm:w-24 md:w-28 h-20 sm:h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=200" class="w-full h-full object-cover filter-bw"></div>
                     </div>
                 </div>
                 <!-- 5 Strip Vertical -->
                 <div class="flex flex-col items-center">
                     <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">The Tall (5-Strip)</p>
-                    <div class="strip-preview scale-90 md:scale-100">
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=200" class="w-full h-full object-cover filter-bw"></div>
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=200" class="w-full h-full object-cover filter-bw"></div>
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw"></div>
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw"></div>
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw"></div>
+                    <div class="strip-preview scale-90 sm:scale-100">
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-bw"></div>
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden"><img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-bw"></div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Emoji Packs Showcase -->
-        <section class="w-full max-w-6xl px-6 py-24 text-center">
-            <h2 class="text-3xl md:text-4xl font-retro text-[#bc4749] mb-16">Customize the Strips</h2>
-            <p class="text-gray-600 max-w-2xl mx-auto mb-16 leading-relaxed">
+        <section class="w-full max-w-6xl px-4 sm:px-6 py-16 sm:py-24 text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-retro text-[#bc4749] mb-12 sm:mb-16">Customize the Strips</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mb-12 sm:mb-16 leading-relaxed text-sm sm:text-base">
                 Choose from themed emoji packs to decorate your photo strips. Drag and drop stickers to create unique memories.
             </p>
-            
-            
 
             <!-- Demo Strips with Emojis -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start justify-center mt-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-start justify-center mt-8 sm:mt-12">
                 <!-- Strip 1 with decorations -->
                 <div class="flex flex-col items-center">
-                    <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">Love Pack</p>
-                    <div class="strip-preview scale-90 md:scale-100 relative">
-                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden relative">
+                    <p class="font-bold text-gray-500 mb-4 sm:mb-6 uppercase tracking-widest text-[10px]">Love Pack</p>
+                    <div class="strip-preview scale-90 sm:scale-100 relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-24 sm:h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" class="w-full h-full object-cover filter-bw">
-                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 10px; right: 10px;">💕</div>
+                            <div class="decoration-demo-sticker text-lg sm:text-xl md:text-2xl" style="top: 8px; right: 8px;">💕</div>
                         </div>
-                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-24 sm:h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200" class="w-full h-full object-cover filter-bw">
-                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="bottom: 10px; left: 10px;">💖</div>
+                            <div class="decoration-demo-sticker text-lg sm:text-xl md:text-2xl" style="bottom: 8px; left: 8px;">💖</div>
                         </div>
-                        <div class="w-24 md:w-28 h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-24 sm:h-28 md:h-32 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=200" class="w-full h-full object-cover filter-bw">
-                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 15px; left: 40%;">💘</div>
+                            <div class="decoration-demo-sticker text-lg sm:text-xl md:text-2xl" style="top: 12px; left: 40%;">💘</div>
                         </div>
-                        <p class="font-marker text-sm md:text-base mt-2 text-center" style="color: #bc4749;">Love Story</p>
+                        <p class="font-marker text-xs sm:text-sm md:text-base mt-2 text-center" style="color: #bc4749;">Love Story</p>
                     </div>
                 </div>
                 
                 <!-- Strip 2 with decorations -->
                 <div class="flex flex-col items-center">
-                    <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">Retro Pack</p>
-                    <div class="strip-preview scale-90 md:scale-100 relative">
-                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
+                    <p class="font-bold text-gray-500 mb-4 sm:mb-6 uppercase tracking-widest text-[10px]">Retro Pack</p>
+                    <div class="strip-preview scale-90 sm:scale-100 relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-20 sm:h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?w=200" class="w-full h-full object-cover filter-retro">
-                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 5px; left: 5px;">📼</div>
+                            <div class="decoration-demo-sticker text-lg sm:text-xl md:text-2xl" style="top: 4px; left: 4px;">📼</div>
                         </div>
-                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-20 sm:h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=200" class="w-full h-full object-cover filter-retro">
-                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="bottom: 10px; right: 10px;">📻</div>
+                            <div class="decoration-demo-sticker text-lg sm:text-xl md:text-2xl" style="bottom: 8px; right: 8px;">📻</div>
                         </div>
-                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-20 sm:h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-retro">
-                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">🎞️</div>
+                            <div class="decoration-demo-sticker text-lg sm:text-xl md:text-2xl" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">🎞️</div>
                         </div>
-                        <div class="w-24 md:w-28 h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-20 sm:h-24 md:h-28 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1495707902641-75cac588d2e9?w=200" class="w-full h-full object-cover filter-retro">
-                            <div class="decoration-demo-sticker text-xl md:text-2xl" style="top: 5px; right: 5px;">📸</div>
+                            <div class="decoration-demo-sticker text-lg sm:text-xl md:text-2xl" style="top: 4px; right: 4px;">📸</div>
                         </div>
-                        <p class="font-marker text-sm md:text-base mt-2 text-center" style="color: #386641;">Retro Vibes</p>
+                        <p class="font-marker text-xs sm:text-sm md:text-base mt-2 text-center" style="color: #386641;">Retro Vibes</p>
                     </div>
                 </div>
                 
                 <!-- Strip 3 with decorations -->
                 <div class="flex flex-col items-center">
-                    <p class="font-bold text-gray-500 mb-6 uppercase tracking-widest text-[10px]">Beach Pack</p>
-                    <div class="strip-preview scale-90 md:scale-100 relative">
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                    <p class="font-bold text-gray-500 mb-4 sm:mb-6 uppercase tracking-widest text-[10px]">Beach Pack</p>
+                    <div class="strip-preview scale-90 sm:scale-100 relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=200" class="w-full h-full object-cover filter-warm">
-                            <div class="decoration-demo-sticker text-lg md:text-xl" style="top: 5px; right: 5px;">🌊</div>
+                            <div class="decoration-demo-sticker text-sm sm:text-lg md:text-xl" style="top: 4px; right: 4px;">🌊</div>
                         </div>
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=200" class="w-full h-full object-cover filter-warm">
-                            <div class="decoration-demo-sticker text-lg md:text-xl" style="bottom: 5px; left: 5px;">☀️</div>
+                            <div class="decoration-demo-sticker text-sm sm:text-lg md:text-xl" style="bottom: 4px; left: 4px;">☀️</div>
                         </div>
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1552168324-d612d77725e3?w=200" class="w-full h-full object-cover filter-warm">
-                            <div class="decoration-demo-sticker text-lg md:text-xl" style="top: 50%; right: 10px;">🏝️</div>
+                            <div class="decoration-demo-sticker text-sm sm:text-lg md:text-xl" style="top: 50%; right: 8px;">🏝️</div>
                         </div>
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" class="w-full h-full object-cover filter-warm">
-                            <div class="decoration-demo-sticker text-lg md:text-xl" style="bottom: 10px; right: 10px;">🐚</div>
+                            <div class="decoration-demo-sticker text-sm sm:text-lg md:text-xl" style="bottom: 8px; right: 8px;">🐚</div>
                         </div>
-                        <div class="w-24 md:w-28 h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
+                        <div class="w-20 sm:w-24 md:w-28 h-16 sm:h-20 md:h-24 bg-gray-200 mb-1 overflow-hidden relative">
                             <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200" class="w-full h-full object-cover filter-warm">
-                            <div class="decoration-demo-sticker text-lg md:text-xl" style="top: 10px; left: 10px;">🌴</div>
+                            <div class="decoration-demo-sticker text-sm sm:text-lg md:text-xl" style="top: 8px; left: 8px;">🌴</div>
                         </div>
-                        <p class="font-marker text-sm md:text-base mt-2 text-center">Beach Day</p>
+                        <p class="font-marker text-xs sm:text-sm md:text-base mt-2 text-center">Beach Day</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Download Demo Section -->
-        <section class="w-full max-w-6xl px-6 py-24 text-center">
-            <h2 class="text-3xl md:text-4xl font-retro text-[#bc4749] mb-16">Save & Share Your Memories</h2>
-            <p class="text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed">
+        <section class="w-full max-w-6xl px-4 sm:px-6 py-16 sm:py-24 text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-retro text-[#bc4749] mb-12 sm:mb-16">Save & Share Your Memories</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed text-sm sm:text-base">
                 Download high-quality PNG images of your photo strips to share on social media, print as keepsakes, or use as digital memories.
             </p>
             
-            <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-16">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6 sm:gap-8 md:gap-12 mb-12 sm:mb-16">
                 <!-- Demo Download Strip -->
-                <div class="strip-preview scale-90 md:scale-100">
-                    <div class="w-32 md:w-40 h-40 md:h-48 bg-gray-200 mb-2 overflow-hidden relative">
+                <div class="strip-preview scale-90 sm:scale-100">
+                    <div class="w-28 sm:w-32 md:w-40 h-32 sm:h-40 md:h-48 bg-gray-200 mb-2 overflow-hidden relative">
                         <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300" class="w-full h-full object-cover filter-bw">
-                        <div class="decoration-demo-sticker text-2xl" style="top: 10px; right: 10px;">✨</div>
+                        <div class="decoration-demo-sticker text-xl sm:text-2xl" style="top: 8px; right: 8px;">✨</div>
                     </div>
-                    <div class="w-32 md:w-40 h-40 md:h-48 bg-gray-200 mb-2 overflow-hidden relative">
+                    <div class="w-28 sm:w-32 md:w-40 h-32 sm:h-40 md:h-48 bg-gray-200 mb-2 overflow-hidden relative">
                         <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=300" class="w-full h-full object-cover filter-bw">
-                        <div class="decoration-demo-sticker text-2xl" style="bottom: 10px; left: 10px;">🌟</div>
+                        <div class="decoration-demo-sticker text-xl sm:text-2xl" style="bottom: 8px; left: 8px;">🌟</div>
                     </div>
-                    <div class="w-32 md:w-40 h-40 md:h-48 bg-gray-200 mb-2 overflow-hidden relative">
+                    <div class="w-28 sm:w-32 md:w-40 h-32 sm:h-40 md:h-48 bg-gray-200 mb-2 overflow-hidden relative">
                         <img src="https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=300" class="w-full h-full object-cover filter-bw">
-                        <div class="decoration-demo-sticker text-2xl" style="top: 15px; left: 40%;">⭐</div>
+                        <div class="decoration-demo-sticker text-xl sm:text-2xl" style="top: 12px; left: 40%;">⭐</div>
                     </div>
-                    <p class="font-marker text-lg md:text-xl mt-3 text-center" style="color: #bc4749;">Golden Hour</p>
+                    <p class="font-marker text-base sm:text-lg md:text-xl mt-3 text-center" style="color: #bc4749;">Golden Hour</p>
                     <div class="text-[9px] text-gray-400 text-center mt-1 uppercase font-bold tracking-widest">Jan 15, 2026</div>
                 </div>
                 
                 <!-- Download Info -->
                 <div class="text-left max-w-md">
-                    <h3 class="text-xl md:text-2xl font-retro mb-6">High-Quality Downloads</h3>
-                    <ul class="space-y-4 mb-8">
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-retro mb-4 sm:mb-6">High-Quality Downloads</h3>
+                    <ul class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                         <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                            <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-2 h-2 sm:w-3 sm:h-3 text-white"></i>
                             </div>
-                            <span>High-resolution PNG files (3x scaling)</span>
+                            <span class="text-sm sm:text-base">High-resolution PNG files (3x scaling)</span>
                         </li>
                         <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                            <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-2 h-2 sm:w-3 sm:h-3 text-white"></i>
                             </div>
-                            <span>Perfect for printing at photo booth size</span>
+                            <span class="text-sm sm:text-base">Perfect for printing at photo booth size</span>
                         </li>
                         <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                            <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-2 h-2 sm:w-3 sm:h-3 text-white"></i>
                             </div>
-                            <span>Social media ready with clean background</span>
+                            <span class="text-sm sm:text-base">Social media ready with clean background</span>
                         </li>
                         <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                            <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#bc4749] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-2 h-2 sm:w-3 sm:h-3 text-white"></i>
                             </div>
-                            <span>Preserves all decorations and filters</span>
+                            <span class="text-sm sm:text-base">Preserves all decorations and filters</span>
                         </li>
                     </ul>
                     
-                    <div class="p-4 bg-gradient-to-r from-[#bc4749] to-[#9a3a3c] text-white rounded-2xl font-bold text-center">
-                        <div class="flex items-center justify-center gap-3">
-                            <i data-lucide="download" class="w-6 h-6"></i>
-                            <span>Ready to Download Your Creation</span>
+                    <div class="p-3 sm:p-4 bg-gradient-to-r from-[#bc4749] to-[#9a3a3c] text-white rounded-2xl font-bold text-center">
+                        <div class="flex items-center justify-center gap-2 sm:gap-3">
+                            <i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                            <span class="text-sm sm:text-base">Ready to Download Your Creation</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="mt-12 p-8 bg-white/50 backdrop-blur-sm rounded-3xl max-w-3xl mx-auto border border-white/30">
-                <h3 class="text-xl md:text-2xl font-retro mb-4">Ready to Create Your Own?</h3>
-                <p class="text-gray-600 mb-8">
+            <div class="mt-8 sm:mt-12 p-6 sm:p-8 bg-white/50 backdrop-blur-sm rounded-3xl max-w-3xl mx-auto border border-white/30">
+                <h3 class="text-lg sm:text-xl md:text-2xl font-retro mb-3 sm:mb-4">Ready to Create Your Own?</h3>
+                <p class="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
                     Step into the booth and create your own vintage photo strips. Capture moments, add decorations from themed packs, and download your memories.
                 </p>
-                <button onclick="startApp()" class="px-10 py-4 bg-[#386641] text-white text-xl rounded-full font-retro hover:bg-[#2a4d31] transform transition hover:scale-105 shadow-xl">
+                <button onclick="startApp()" class="px-8 sm:px-10 py-3 sm:py-4 bg-[#386641] text-white text-lg sm:text-xl rounded-full font-retro hover:bg-[#2a4d31] transform transition hover:scale-105 shadow-xl">
                     Start Creating Now
                 </button>
             </div>
         </section>
 
         <!-- Footer -->
-        <footer class="w-full py-16 px-6 flex flex-col items-center text-center">
-            <div class="flex gap-4 mb-10">
-                <a href="https://github.com/Ellen-Iconoclust/" target="_blank" class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-black hover:text-white transition-all duration-300">
-                    <i data-lucide="github" class="w-5 h-5 md:w-6 md:h-6"></i>
+        <footer class="w-full py-12 sm:py-16 px-4 sm:px-6 flex flex-col items-center text-center">
+            <div class="flex gap-3 sm:gap-4 mb-8 sm:mb-10">
+                <a href="https://github.com/Ellen-Iconoclust/" target="_blank" class="social-icon p-3 sm:p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-black hover:text-white transition-all duration-300">
+                    <i data-lucide="github" class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"></i>
                 </a>
-                <a href="https://www.linkedin.com/in/elisa-pravin-s" target="_blank" class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-[#0077b5] hover:text-white transition-all duration-300">
-                    <i data-lucide="linkedin" class="w-5 h-5 md:w-6 md:h-6"></i>
+                <a href="https://www.linkedin.com/in/elisa-pravin-s" target="_blank" class="social-icon p-3 sm:p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-[#0077b5] hover:text-white transition-all duration-300">
+                    <i data-lucide="linkedin" class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"></i>
                 </a>
-                <a href="https://instagram.com/pravin_s_elisa" target="_blank" class="social-icon p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-pink-600 hover:text-white transition-all duration-300">
-                    <i data-lucide="instagram" class="w-5 h-5 md:w-6 md:h-6"></i>
+                <a href="https://instagram.com/pravin_s_elisa" target="_blank" class="social-icon p-3 sm:p-4 bg-white shadow-sm border border-gray-200 rounded-full hover:bg-pink-600 hover:text-white transition-all duration-300">
+                    <i data-lucide="instagram" class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"></i>
                 </a>
             </div>
-            <p class="text-gray-600 font-bold tracking-[0.2em] text-[10px] uppercase mb-3 px-4">
+            <p class="text-gray-600 font-bold tracking-[0.2em] text-[9px] sm:text-[10px] uppercase mb-3 px-4">
                 &copy; 2026 RetroBooth All Rights Reserved
             </p>
-            <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold">
+            <p class="text-gray-400 text-[9px] sm:text-[10px] tracking-wider uppercase font-bold">
                 Made by <a href="https://ellen-dev.vercel.app" target="_blank" class="text-[#bc4749] hover:underline">Ellen Iconoclust</a>
             </p>
         </footer>
     </div>
 
     <!-- BOOTH INTERFACE -->
-    <div id="booth-page" class="hidden min-h-screen p-4 pt-24 md:p-8 md:pt-24 flex flex-col lg:flex-row gap-8 relative z-10 max-w-7xl mx-auto">
+    <div id="booth-page" class="hidden min-h-screen p-3 sm:p-4 md:p-8 pt-20 sm:pt-24 flex flex-col lg:flex-row gap-6 sm:gap-8 relative z-10 max-w-7xl mx-auto">
         <!-- Left: Feed -->
         <div class="flex-1 flex flex-col items-center">
             <div class="w-full max-w-2xl">
-                <div class="flex justify-between items-end mb-4 px-2">
-                    <h2 class="text-2xl md:text-3xl font-retro text-[#bc4749]">Live Preview</h2>
-                    <div id="status-text" class="text-sm md:text-base font-bold opacity-60 italic">Ready to Shoot</div>
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-4 px-2">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-retro text-[#bc4749] mb-2 sm:mb-0">Live Preview</h2>
+                    <div id="status-text" class="text-xs sm:text-sm md:text-base font-bold opacity-60 italic">Ready to Shoot</div>
                 </div>
 
                 <div class="camera-box rounded-xl">
                     <video id="video" autoplay playsinline class="w-full h-full object-cover transition-all"></video>
                     <canvas id="canvas-process" class="hidden"></canvas>
                     <div id="flash-effect" class="flash"></div>
-                    <div id="countdown" class="absolute inset-0 flex items-center justify-center text-8xl md:text-9xl font-retro text-white drop-shadow-2xl opacity-0 pointer-events-none">3</div>
+                    <div id="countdown" class="absolute inset-0 flex items-center justify-center text-6xl sm:text-8xl md:text-9xl font-retro text-white drop-shadow-2xl opacity-0 pointer-events-none">3</div>
                 </div>
 
-                <div class="mt-6 overflow-x-auto py-2 flex gap-3 px-2 scroll-hide">
-                    <button onclick="setFilter('none')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Original</button>
-                    <button onclick="setFilter('bw')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">B&W</button>
-                    <button onclick="setFilter('retro')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Vintage</button>
-                    <button onclick="setFilter('sepia')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Sepia</button>
-                    <button onclick="setFilter('warm')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Warm</button>
-                    <button onclick="setFilter('cool')" class="flex-shrink-0 px-4 py-2 bg-white text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Cool</button>
+                <div class="mt-4 sm:mt-6 overflow-x-auto py-2 flex gap-2 sm:gap-3 px-2 scroll-hide">
+                    <button onclick="setFilter('none')" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-[10px] sm:text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Original</button>
+                    <button onclick="setFilter('bw')" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-[10px] sm:text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">B&W</button>
+                    <button onclick="setFilter('retro')" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-[10px] sm:text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Vintage</button>
+                    <button onclick="setFilter('sepia')" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-[10px] sm:text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Sepia</button>
+                    <button onclick="setFilter('warm')" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-[10px] sm:text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Warm</button>
+                    <button onclick="setFilter('cool')" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-white text-[10px] sm:text-xs font-bold uppercase tracking-widest border border-gray-200 rounded-full hover:bg-black hover:text-white transition">Cool</button>
                 </div>
 
-                <div class="mt-8 flex items-center justify-center gap-6">
-                    <button onclick="resetSession()" class="p-4 bg-white/50 backdrop-blur rounded-full hover:bg-white transition shadow-sm border border-white/20" title="Reset">
-                        <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                <div class="mt-6 sm:mt-8 flex items-center justify-center gap-4 sm:gap-6">
+                    <button onclick="resetSession()" class="p-3 sm:p-4 bg-white/50 backdrop-blur rounded-full hover:bg-white transition shadow-sm border border-white/20" title="Reset">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                     </button>
-                    <button id="capture-btn" onclick="startCaptureSequence()" class="shutter-btn w-20 h-20 md:w-24 md:h-24 rounded-full border-[6px] md:border-[10px] border-white shadow-2xl flex items-center justify-center text-white">
-                        <i data-lucide="camera" class="w-8 h-8 md:w-10 md:h-10"></i>
+                    <button id="capture-btn" onclick="startCaptureSequence()" class="shutter-btn w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full border-[4px] sm:border-[6px] md:border-[10px] border-white shadow-2xl flex items-center justify-center text-white">
+                        <i data-lucide="camera" class="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10"></i>
                     </button>
-                    <button onclick="toggleMirror()" class="p-4 bg-white/50 backdrop-blur rounded-full hover:bg-white transition shadow-sm border border-white/20" title="Mirror">
-                        <i data-lucide="flip-horizontal" class="w-5 h-5"></i>
+                    <button onclick="toggleMirror()" class="p-3 sm:p-4 bg-white/50 backdrop-blur rounded-full hover:bg-white transition shadow-sm border border-white/20" title="Mirror">
+                        <i data-lucide="flip-horizontal" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Right: Customization -->
-        <div class="w-full lg:w-96 flex flex-col gap-6">
-            <div class="bg-white/40 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-white/40">
-                <h3 class="text-2xl font-retro mb-6">Your Strip</h3>
+        <div class="w-full lg:w-96 flex flex-col gap-4 sm:gap-6 mt-6 sm:mt-0">
+            <div class="bg-white/40 backdrop-blur-md p-4 sm:p-6 rounded-3xl shadow-xl border border-white/40">
+                <h3 class="text-xl sm:text-2xl font-retro mb-4 sm:mb-6">Your Strip</h3>
                 
-                <div id="final-strip" class="strip-preview relative min-h-[400px] w-60 md:w-64 bg-white mx-auto">
-                    <div id="strip-photos" class="flex flex-col gap-2 md:gap-3"></div>
-                    <div class="mt-4 px-2">
-                        <input type="text" id="strip-caption" placeholder="Tap to write..." class="w-full text-center font-marker text-lg md:text-xl bg-transparent border-none focus:ring-0 placeholder-gray-300" maxlength="30">
-                        <div id="date-stamp" class="text-[9px] text-gray-400 text-center mt-1 uppercase font-bold tracking-widest"></div>
+                <div id="final-strip" class="strip-preview relative min-h-[350px] sm:min-h-[400px] w-48 sm:w-60 md:w-64 bg-white mx-auto">
+                    <div id="strip-photos" class="flex flex-col gap-1.5 sm:gap-2 md:gap-3"></div>
+                    <div class="mt-3 sm:mt-4 px-2">
+                        <input type="text" id="strip-caption" placeholder="Tap to write..." class="w-full text-center font-marker text-base sm:text-lg md:text-xl bg-transparent border-none focus:ring-0 placeholder-gray-300" maxlength="30">
+                        <div id="date-stamp" class="text-[8px] sm:text-[9px] text-gray-400 text-center mt-1 uppercase font-bold tracking-widest"></div>
                     </div>
                     <div id="stickers-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
                 </div>
 
-                <div class="mt-8 space-y-6">
+                <div class="mt-6 sm:mt-8 space-y-4 sm:space-y-6">
                     <div>
                         <label class="text-[10px] font-bold uppercase tracking-widest block mb-2 text-gray-500">Layout</label>
-                        <select id="layout-select" onchange="updateLayout()" class="w-full p-3 rounded-xl border border-gray-200 bg-white/80 text-sm">
+                        <select id="layout-select" onchange="updateLayout()" class="w-full p-2.5 sm:p-3 rounded-xl border border-gray-200 bg-white/80 text-sm">
                             <option value="3">3 Photos (Classic)</option>
                             <option value="4">4 Photos (Standard)</option>
                             <option value="5">5 Photos (Tall)</option>
@@ -566,29 +744,29 @@
 
                     <div>
                         <label class="text-[10px] font-bold uppercase tracking-widest block mb-2 text-gray-500">Emoji Packs</label>
-                        <div class="flex gap-2 overflow-x-auto pb-2 scroll-hide">
-                            <button onclick="selectEmojiPack('classic')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm active" data-pack="classic">
+                        <div class="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 scroll-hide">
+                            <button onclick="selectEmojiPack('classic')" class="emoji-pack-btn flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm active" data-pack="classic">
                                 Classic
                             </button>
-                            <button onclick="selectEmojiPack('retro')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="retro">
+                            <button onclick="selectEmojiPack('retro')" class="emoji-pack-btn flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm" data-pack="retro">
                                 Retro
                             </button>
-                            <button onclick="selectEmojiPack('love')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="love">
+                            <button onclick="selectEmojiPack('love')" class="emoji-pack-btn flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm" data-pack="love">
                                 Love
                             </button>
-                            <button onclick="selectEmojiPack('christmas')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="christmas">
+                            <button onclick="selectEmojiPack('christmas')" class="emoji-pack-btn flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm" data-pack="christmas">
                                 Christmas
                             </button>
-                            <button onclick="selectEmojiPack('halloween')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="halloween">
+                            <button onclick="selectEmojiPack('halloween')" class="emoji-pack-btn flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm" data-pack="halloween">
                                 Halloween
                             </button>
-                            <button onclick="selectEmojiPack('birthday')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="birthday">
+                            <button onclick="selectEmojiPack('birthday')" class="emoji-pack-btn flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm" data-pack="birthday">
                                 Birthday
                             </button>
-                            <button onclick="selectEmojiPack('beach')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="beach">
+                            <button onclick="selectEmojiPack('beach')" class="emoji-pack-btn flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm" data-pack="beach">
                                 Beach
                             </button>
-                            <button onclick="selectEmojiPack('music')" class="emoji-pack-btn flex-shrink-0 px-4 py-2 rounded-lg text-sm" data-pack="music">
+                            <button onclick="selectEmojiPack('music')" class="emoji-pack-btn flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm" data-pack="music">
                                 Music
                             </button>
                         </div>
@@ -610,11 +788,11 @@
                         </div>
                     </div>
 
-                    <div class="pt-4 flex flex-col gap-3">
-                        <button id="download-btn" onclick="exportStrip()" disabled class="w-full py-4 bg-[#bc4749] text-white rounded-2xl font-bold text-sm uppercase tracking-widest opacity-50 cursor-not-allowed transition hover:brightness-110 shadow-lg">
+                    <div class="pt-3 sm:pt-4 flex flex-col gap-2 sm:gap-3">
+                        <button id="download-btn" onclick="exportStrip()" disabled class="w-full py-3 sm:py-4 bg-[#bc4749] text-white rounded-2xl font-bold text-xs sm:text-sm uppercase tracking-widest opacity-50 cursor-not-allowed transition hover:brightness-110 shadow-lg">
                             Download PNG
                         </button>
-                        <button onclick="goHome()" class="w-full py-3 bg-gray-200/50 text-gray-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition">
+                        <button onclick="goHome()" class="w-full py-2.5 sm:py-3 bg-gray-200/50 text-gray-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition">
                             Back to Home
                         </button>
                     </div>
@@ -658,10 +836,38 @@
             music: ['🎵', '🎶', '🎧', '🎤', '🎸', '🥁', '🎹', '🎷', '🎺', '🪗', '🎻', '📻']
         };
 
+        // Mobile menu toggle function
+        function toggleMobileMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+            
+            // Change icon
+            const menuIcon = document.querySelector('.mobile-menu-btn i');
+            if (navLinks.classList.contains('active')) {
+                menuIcon.setAttribute('data-lucide', 'x');
+                lucide.createIcons();
+            } else {
+                menuIcon.setAttribute('data-lucide', 'menu');
+                lucide.createIcons();
+            }
+        }
+
+        // Close mobile menu when clicking a link
+        function closeMobileMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.remove('active');
+            
+            // Reset icon
+            const menuIcon = document.querySelector('.mobile-menu-btn i');
+            menuIcon.setAttribute('data-lucide', 'menu');
+            lucide.createIcons();
+        }
+
         async function startApp() {
             document.getElementById('landing-page').classList.add('hidden');
             document.getElementById('booth-page').classList.remove('hidden');
             window.scrollTo(0, 0);
+            closeMobileMenu();
             
             try {
                 if (!stream) {
@@ -682,6 +888,7 @@
             document.getElementById('booth-page').classList.add('hidden');
             document.getElementById('landing-page').classList.remove('hidden');
             window.scrollTo(0, 0);
+            closeMobileMenu();
         }
 
         function updateDate() {
@@ -708,7 +915,7 @@
             photoContainer.innerHTML = '';
             for (let i = 1; i <= maxPhotos; i++) {
                 const slot = document.createElement('div');
-                slot.className = 'w-full h-28 md:h-32 bg-gray-50 flex items-center justify-center text-[10px] text-gray-300 border border-gray-100 uppercase tracking-widest font-bold';
+                slot.className = 'w-full h-24 sm:h-28 md:h-32 bg-gray-50 flex items-center justify-center text-[10px] text-gray-300 border border-gray-100 uppercase tracking-widest font-bold';
                 slot.innerText = `Photo ${i}`;
                 photoContainer.appendChild(slot);
             }
@@ -791,7 +998,7 @@
             
             const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
             const photoEl = document.createElement('div');
-            photoEl.className = 'w-full h-28 md:h-32 overflow-hidden bg-black';
+            photoEl.className = 'w-full h-24 sm:h-28 md:h-32 overflow-hidden bg-black';
             const img = document.createElement('img');
             img.src = dataUrl;
             img.className = 'w-full h-full object-cover filter-' + currentFilter;
@@ -802,7 +1009,7 @@
         function addSticker(emoji) {
             const container = document.getElementById('stickers-container');
             const sticker = document.createElement('div');
-            sticker.className = 'sticker text-2xl md:text-3xl pointer-events-auto cursor-grab active:cursor-grabbing';
+            sticker.className = 'sticker text-xl sm:text-2xl md:text-3xl pointer-events-auto cursor-grab active:cursor-grabbing';
             sticker.innerText = emoji;
             sticker.style.left = '40%'; sticker.style.top = '40%';
             makeDraggable(sticker);
@@ -812,6 +1019,7 @@
         function makeDraggable(el) {
             let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
             const start = (e) => {
+                e.preventDefault();
                 const clientX = e.clientX || e.touches[0].clientX;
                 const clientY = e.clientY || e.touches[0].clientY;
                 p3 = clientX; p4 = clientY;
@@ -819,6 +1027,7 @@
                 document.onmouseup = end; document.ontouchend = end;
             };
             const drag = (e) => {
+                e.preventDefault();
                 const clientX = e.clientX || e.touches[0].clientX;
                 const clientY = e.clientY || e.touches[0].clientY;
                 p1 = p3 - clientX; p2 = p4 - clientY;
@@ -826,8 +1035,12 @@
                 el.style.top = (el.offsetTop - p2) + "px";
                 el.style.left = (el.offsetLeft - p1) + "px";
             };
-            const end = () => { document.onmousemove = null; document.ontouchmove = null; };
-            el.onmousedown = start; el.ontouchstart = start;
+            const end = () => { 
+                document.onmousemove = null; 
+                document.ontouchmove = null; 
+            };
+            el.onmousedown = start; 
+            el.ontouchstart = start;
         }
 
         async function exportStrip() {
