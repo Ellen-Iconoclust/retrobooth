@@ -38,6 +38,45 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
         }
 
+        /* Mobile Nav Menu */
+        .mobile-nav-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 70%;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 100;
+            padding: 5rem 1.5rem 2rem;
+            transition: right 0.3s ease-in-out;
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-nav-menu.active {
+            right: 0;
+        }
+
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
         .grain-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -223,6 +262,17 @@
             justify-content: center;
             font-weight: bold;
         }
+
+        /* Mobile-specific nav styles */
+        @media (max-width: 768px) {
+            .desktop-nav { display: none !important; }
+            .mobile-nav { display: flex !important; }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-nav { display: none !important; }
+            .desktop-nav { display: flex !important; }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -234,8 +284,25 @@
     <div class="blob blob-tan top-[40%] left-[60%] animate-float" style="animation-delay: -4s"></div>
     <div class="blob blob-brown bottom-[-10%] left-[10%] opacity-20"></div>
 
-    <!-- GLASS NAV BAR -->
-    <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl glass-nav rounded-full px-4 md:px-6 py-3 flex items-center justify-between">
+    <!-- Mobile Navigation Overlay -->
+    <div id="mobileNavOverlay" class="mobile-nav-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobileNavMenu" class="mobile-nav-menu">
+        <div class="flex flex-col items-center gap-8 pt-8">
+            <div class="w-12 h-12 bg-[#bc4749] rounded-lg flex items-center justify-center mb-4">
+                <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+            </div>
+            <button onclick="goHome(); closeMobileMenu()" class="w-full py-3 text-center text-lg font-bold uppercase tracking-widest text-gray-700 hover:text-[#bc4749] transition border-b border-gray-100">Home</button>
+            <button onclick="startApp(); closeMobileMenu()" class="w-full py-3 text-center text-lg font-bold uppercase tracking-widest text-gray-700 hover:text-[#bc4749] transition border-b border-gray-100">Booth</button>
+            <div class="mt-8 pt-8 border-t border-gray-200 w-full">
+                <p class="text-center text-gray-500 text-sm font-bold tracking-widest uppercase">&copy; 2026 RetroBooth</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DESKTOP GLASS NAV BAR (unchanged) -->
+    <nav class="desktop-nav fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl glass-nav rounded-full px-4 md:px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
             <div class="w-8 h-8 bg-[#bc4749] rounded-lg flex items-center justify-center">
                 <i data-lucide="camera" class="w-5 h-5 text-white"></i>
@@ -246,6 +313,19 @@
             <button onclick="goHome()" class="hover:text-[#bc4749] transition">Home</button>
             <button onclick="startApp()" class="hover:text-[#bc4749] transition">Booth</button>
         </div>
+    </nav>
+
+    <!-- MOBILE COMPACT NAV BAR -->
+    <nav class="mobile-nav fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm glass-nav rounded-full px-3 py-2 flex items-center justify-between">
+        <div class="flex items-center gap-1 cursor-pointer" onclick="goHome()">
+            <div class="w-6 h-6 bg-[#bc4749] rounded-md flex items-center justify-center flex-shrink-0">
+                <i data-lucide="camera" class="w-3 h-3 text-white"></i>
+            </div>
+            <span class="font-retro text-sm font-bold tracking-tight truncate">RetroBooth</span>
+        </div>
+        <button id="hamburgerBtn" class="w-8 h-8 flex items-center justify-center bg-white/50 rounded-full border border-white/30">
+            <i data-lucide="menu" class="w-4 h-4 text-gray-700"></i>
+        </button>
     </nav>
 
     <!-- LANDING PAGE -->
@@ -638,6 +718,9 @@
         const downloadBtn = document.getElementById('download-btn');
         const dateStampEl = document.getElementById('date-stamp');
         const emojiGrid = document.getElementById('emoji-grid');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const mobileNavMenu = document.getElementById('mobileNavMenu');
+        const mobileNavOverlay = document.getElementById('mobileNavOverlay');
 
         let stream = null;
         let maxPhotos = 3;
@@ -658,10 +741,24 @@
             music: ['🎵', '🎶', '🎧', '🎤', '🎸', '🥁', '🎹', '🎷', '🎺', '🪗', '🎻', '📻']
         };
 
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            mobileNavMenu.classList.toggle('active');
+            mobileNavOverlay.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            mobileNavMenu.classList.remove('active');
+            mobileNavOverlay.classList.remove('active');
+        }
+
+        hamburgerBtn.addEventListener('click', toggleMobileMenu);
+
         async function startApp() {
             document.getElementById('landing-page').classList.add('hidden');
             document.getElementById('booth-page').classList.remove('hidden');
             window.scrollTo(0, 0);
+            closeMobileMenu();
             
             try {
                 if (!stream) {
@@ -682,6 +779,7 @@
             document.getElementById('booth-page').classList.add('hidden');
             document.getElementById('landing-page').classList.remove('hidden');
             window.scrollTo(0, 0);
+            closeMobileMenu();
         }
 
         function updateDate() {
