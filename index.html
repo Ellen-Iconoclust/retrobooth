@@ -50,7 +50,7 @@
     .glass-nav {
         padding: 0.35rem 0.6rem; /* Reduced from 0.5rem 0.75rem */
         border-radius: 16px; /* Reduced from 20px */
-        width: 96%; /* Slightly wider to look better when smaller */
+        width: 94%; /* Slightly wider to look better when smaller */
         top: 0.5rem !important; /* Add top positioning */
     }
     
@@ -73,14 +73,15 @@
 @media (max-width: 480px) {
     .glass-nav {
         padding: 0.25rem 0.5rem; /* Reduced from 0.4rem 0.6rem */
-        width: 97%;
+        width: 95%;
         top: 0.4rem !important;
         border-radius: 14px; /* Even smaller radius */
     }
     
     .glass-nav .nav-links {
         gap: 0.3rem; /* Reduced from 0.5rem */
-        font-size: 8px; /* Reduced from 9px */
+        font-size: 8px;/* Reduced from 9px */
+        width: 96% !important;
     }
     
     .glass-nav .logo-text {
@@ -375,13 +376,25 @@
         }
 
         /* Mobile Menu Button */
-        .mobile-menu-btn {
-            display: none;
-            padding: 6px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
+       /* Mobile Menu Button */
+            .mobile-menu-btn {
+                display: none;
+                padding: 4px 6px;
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.7);
+                border: 1px solid rgba(255, 255, 255, 0.4);
+            }
+        @media (max-width: 640px) {
+    .glass-nav {
+        padding-right: 2.5rem !important; /* Make room for menu button */
+    }
+    
+    .mobile-menu-btn {
+        position: absolute;
+        right: 0.5rem;
+        z-index: 10;
+    }
+}
 
         @media (max-width: 640px) {
             .mobile-menu-btn {
@@ -435,7 +448,7 @@
     <div class="blob blob-brown bottom-[-10%] left-[10%] opacity-20"></div>
 
     <!-- GLASS NAV BAR - Updated for Mobile -->
-   <nav class="fixed top-2 sm:top-3 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl glass-nav rounded-full px-2 sm:px-3 md:px-6 py-1.5 sm:py-2 md:py-3 flex items-center justify-between">
+   <nav class="fixed top-2 sm:top-3 left-1/2 -translate-x-1/2 z-50 w-[94%] sm:w-[92%] max-w-4xl glass-nav rounded-full px-2 sm:px-3 md:px-6 py-1.5 sm:py-2 md:py-3 flex items-center justify-between">
     <div class="flex items-center gap-1.5 sm:gap-2 cursor-pointer" onclick="goHome()">
         <div class="logo-icon w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-[#bc4749] rounded-lg flex items-center justify-center">
             <i data-lucide="camera" class="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white"></i>
