@@ -435,25 +435,25 @@
     <div class="blob blob-brown bottom-[-10%] left-[10%] opacity-20"></div>
 
     <!-- GLASS NAV BAR - Updated for Mobile -->
-    <nav class="fixed top-3 sm:top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl glass-nav rounded-full px-3 sm:px-4 md:px-6 py-2 sm:py-3 flex items-center justify-between">
-        <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
-            <div class="logo-icon w-7 h-7 sm:w-8 sm:h-8 bg-[#bc4749] rounded-lg flex items-center justify-center">
-                <i data-lucide="camera" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></i>
-            </div>
-            <span class="logo-text font-retro text-base sm:text-lg md:text-xl font-bold tracking-tight">RetroBooth</span>
+   <nav class="fixed top-2 sm:top-3 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-4xl glass-nav rounded-full px-2 sm:px-3 md:px-6 py-1.5 sm:py-2 md:py-3 flex items-center justify-between">
+    <div class="flex items-center gap-1.5 sm:gap-2 cursor-pointer" onclick="goHome()">
+        <div class="logo-icon w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-[#bc4749] rounded-lg flex items-center justify-center">
+            <i data-lucide="camera" class="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white"></i>
         </div>
-        
-        <!-- Mobile Menu Button -->
-        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
-            <i data-lucide="menu" class="w-4 h-4"></i>
-        </button>
-        
-        <!-- Desktop Navigation Links -->
-        <div class="nav-links flex gap-3 sm:gap-4 md:gap-6 text-xs sm:text-[10px] md:text-sm font-bold uppercase tracking-widest text-gray-700">
-            <button onclick="goHome()" class="hover:text-[#bc4749] transition">Home</button>
-            <button onclick="startApp()" class="hover:text-[#bc4749] transition">Booth</button>
-        </div>
-    </nav>
+        <span class="logo-text font-retro text-sm sm:text-base md:text-lg lg:text-xl font-bold tracking-tight">RetroBooth</span>
+    </div>
+    
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i data-lucide="menu" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+    </button>
+    
+    <!-- Desktop Navigation Links -->
+    <div class="nav-links flex gap-2 sm:gap-3 md:gap-6 text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-widest text-gray-700">
+        <button onclick="goHome()" class="hover:text-[#bc4749] transition">Home</button>
+        <button onclick="startApp()" class="hover:text-[#bc4749] transition">Booth</button>
+    </div>
+</nav>
 
     <!-- LANDING PAGE -->
     <div id="landing-page" class="relative z-10 flex flex-col items-center">
